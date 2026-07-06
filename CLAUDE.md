@@ -26,6 +26,6 @@ Dashboard web que visualiza los anuncios activos en Meta de Kadora (cadena de re
 
 No hay build ni dependencias. Para ver cambios en local:
 ```
-cd ~/Documents/kadora-dashboard && python3 -m http.server 8931
+cd ~/Desktop/kadora-dashboard && python3 -m http.server 8931
 ```
 y abrir `http://localhost:8931`. Para publicarlos: `git add -A && git commit -m "..." && git push` (Netlify despliega solo).
