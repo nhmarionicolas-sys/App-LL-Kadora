@@ -184,14 +184,23 @@ function renderKpis() {
 
   const idx = weeks.indexOf(selectedWeek);
   const kpiVariacion = document.getElementById('kpiVariacion');
+  const kpiVariacionDetalle = document.getElementById('kpiVariacionDetalle');
   if (idx > -1 && idx < weeks.length - 1) {
     const prevCount = rawAds.filter(a => weekKey(a.fechaExtraccion) === weeks[idx + 1]).length;
     const delta = total - prevCount;
     kpiVariacion.textContent = (delta > 0 ? '+' : '') + delta;
     kpiVariacion.className = 'kpi-value' + (delta > 0 ? ' up' : delta < 0 ? ' down' : '');
+
+    const nuevos = weekAds.filter(a => a.isNew).length;
+    const resto = delta - nuevos;
+    const partes = [];
+    if (nuevos) partes.push(`${nuevos} nuevos`);
+    if (resto) partes.push(`${resto > 0 ? '+' : ''}${resto} en anuncios ya existentes`);
+    kpiVariacionDetalle.textContent = partes.length ? `(${partes.join(', ')})` : '';
   } else {
     kpiVariacion.textContent = '—';
     kpiVariacion.className = 'kpi-value';
+    kpiVariacionDetalle.textContent = '';
   }
 }
 
