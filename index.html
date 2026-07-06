@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KADORA · Monitor de Anuncios Meta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="assets/kadora-logo.webp" alt="Kadora" class="brand-logo">
+      <div class="brand-text">
+        <p>Monitor de Anuncios Activos · Meta Ads</p>
+      </div>
+    </div>
+    <div class="sync-status" id="syncStatus">
+      <span class="sync-dot" id="syncDot"></span>
+      <span id="syncLabel">Conectando con el Sheet…</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="week-bar">
+    <label for="weekSelect">Semana:</label>
+    <select id="weekSelect" class="select"></select>
+  </section>
+
+  <section class="kpis" id="kpis">
+    <div class="kpi-card">
+      <span class="kpi-value" id="kpiTotal">–</span>
+      <span class="kpi-label">Anuncios activos esta semana</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value" id="kpiVariacion">–</span>
+      <span class="kpi-label">Variación vs. semana anterior</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value" id="kpiResidencias">–</span>
+      <span class="kpi-label">Residencias con campaña activa</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value" id="kpiReciente">–</span>
+      <span class="kpi-label">Anuncio más reciente</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value" id="kpiTop">–</span>
+      <span class="kpi-label">Residencia con más actividad</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="chips" id="residenciaChips"></div>
+    <div class="controls-right">
+      <label class="group-toggle">
+        <input type="checkbox" id="newOnlyToggle">
+        <span>🆕 Solo nuevos esta semana</span>
+      </label>
+      <label class="group-toggle">
+        <input type="checkbox" id="groupToggle">
+        <span>Agrupar por texto compartido</span>
+      </label>
+      <select id="sortSelect" class="select">
+        <option value="recent">Más recientes primero</option>
+        <option value="old">Más antiguos primero</option>
+        <option value="residencia">Por residencia (A-Z)</option>
+      </select>
+      <input type="search" id="searchInput" class="search" placeholder="Buscar en el texto del anuncio…">
+    </div>
+  </section>
+
+  <section class="grid" id="cardsGrid"></section>
+
+  <p class="empty-state" id="emptyState" hidden>No hay anuncios que coincidan con este filtro.</p>
+
+</main>
+
+<footer class="footer">
+  <p>Datos sincronizados automáticamente cada lunes desde la API de Meta · <button id="refreshBtn" class="link-btn">Actualizar ahora</button></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
