@@ -130,16 +130,16 @@ function contentKey(ad) {
 }
 
 // Numera cada anuncio dentro de su residencia (orden estable por fecha de
-// inicio) y marca si su texto no aparecía en la semana anterior disponible.
+// inicio) y marca como "nuevo" el que empezó a correr después de la última
+// comprobación (fecha_inicio posterior a la extracción anterior) — es la
+// única definición de "nuevo" en toda la web, para que el KPI y el filtro
+// siempre coincidan en el mismo número.
 function getWeekAds() {
   const weekAds = rawAds.filter(a => weekKey(a.fechaExtraccion) === selectedWeek);
 
   const weeks = getAvailableWeeks();
   const idx = weeks.indexOf(selectedWeek);
   const prevWeek = idx > -1 && idx < weeks.length - 1 ? weeks[idx + 1] : null;
-  const prevKeys = new Set(
-    rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(contentKey)
-  );
 
   const ordenado = [...weekAds].sort((a, b) => (a.fechaInicio || 0) - (b.fechaInicio || 0));
   const contadores = {};
@@ -153,7 +153,7 @@ function getWeekAds() {
   return weekAds.map(a => ({
     ...a,
     numero: numeroPorAd.get(a),
-    isNew: prevWeek ? !prevKeys.has(contentKey(a)) : false,
+    isNew: prevWeek ? !!(a.fechaInicio && weekKey(a.fechaInicio) > prevWeek) : false,
   }));
 }
 
@@ -183,23 +183,17 @@ function renderKpis() {
   document.getElementById('kpiTop').textContent = top ? `${top[0]} (${top[1]})` : '—';
 
   const idx = weeks.indexOf(selectedWeek);
-  const kpiVariacion = document.getElementById('kpiVariacion');
+  const kpiNuevos = document.getElementById('kpiNuevos');
   const kpiVariacionDetalle = document.getElementById('kpiVariacionDetalle');
   if (idx > -1 && idx < weeks.length - 1) {
     const prevCount = rawAds.filter(a => weekKey(a.fechaExtraccion) === weeks[idx + 1]).length;
     const delta = total - prevCount;
-    kpiVariacion.textContent = (delta > 0 ? '+' : '') + delta;
-    kpiVariacion.className = 'kpi-value' + (delta > 0 ? ' up' : delta < 0 ? ' down' : '');
-
     const nuevos = weekAds.filter(a => a.isNew).length;
-    const resto = delta - nuevos;
-    const partes = [];
-    if (nuevos) partes.push(`${nuevos} nuevos`);
-    if (resto) partes.push(`${resto > 0 ? '+' : ''}${resto} en anuncios ya existentes`);
-    kpiVariacionDetalle.textContent = partes.length ? `(${partes.join(', ')})` : '';
+
+    kpiNuevos.textContent = nuevos;
+    kpiVariacionDetalle.textContent = `Variación neta total: ${delta > 0 ? '+' : ''}${delta}`;
   } else {
-    kpiVariacion.textContent = '—';
-    kpiVariacion.className = 'kpi-value';
+    kpiNuevos.textContent = '—';
     kpiVariacionDetalle.textContent = '';
   }
 }
