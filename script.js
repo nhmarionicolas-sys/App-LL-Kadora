@@ -184,17 +184,11 @@ function renderKpis() {
 
   const idx = weeks.indexOf(selectedWeek);
   const kpiNuevos = document.getElementById('kpiNuevos');
-  const kpiVariacionDetalle = document.getElementById('kpiVariacionDetalle');
   if (idx > -1 && idx < weeks.length - 1) {
-    const prevCount = rawAds.filter(a => weekKey(a.fechaExtraccion) === weeks[idx + 1]).length;
-    const delta = total - prevCount;
     const nuevos = weekAds.filter(a => a.isNew).length;
-
     kpiNuevos.textContent = nuevos;
-    kpiVariacionDetalle.textContent = `Variación neta total: ${delta > 0 ? '+' : ''}${delta}`;
   } else {
     kpiNuevos.textContent = '—';
-    kpiVariacionDetalle.textContent = '';
   }
 }
 
