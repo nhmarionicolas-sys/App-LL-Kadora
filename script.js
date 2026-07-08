@@ -78,6 +78,7 @@ function adId(url) {
 // ---------------------------------------------------------------------------
 async function loadData() {
   setSyncStatus('loading', 'Sincronizando con el Sheet…');
+  if (!rawAds.length) renderSkeletonCards();
   try {
     const res = await fetch(CONFIG.DATA_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -567,6 +568,27 @@ function getFilteredAds() {
   return ads;
 }
 
+// Tarjetas de esqueleto mientras llega la primera respuesta del Sheet, con
+// la misma anatomía que una tarjeta real para que no haya salto al cargar.
+function renderSkeletonCards(count = 6) {
+  const grid = document.getElementById('cardsGrid');
+  document.getElementById('emptyState').hidden = true;
+  grid.innerHTML = Array.from({ length: count }, () => `
+    <article class="card skeleton-card">
+      <div class="card-top">
+        <div class="skeleton skeleton-badge"></div>
+      </div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line short"></div>
+      <div class="skeleton skeleton-line shorter"></div>
+      <div class="skeleton-bottom">
+        <div class="skeleton skeleton-line short" style="height:22px; width:60%;"></div>
+        <div class="skeleton skeleton-pill"></div>
+      </div>
+    </article>
+  `).join('');
+}
+
 function renderCards() {
   const grid = document.getElementById('cardsGrid');
   const empty = document.getElementById('emptyState');
@@ -595,9 +617,9 @@ function renderCards() {
           : `<span class="card-link disabled">Sin enlace</span>`);
 
     return `
-      <article class="card">
+      <article class="card" style="--accent:${color}">
         <div class="card-top">
-          <span class="badge" style="--accent:${color}">${PIN_ICON}${ad.residencia}</span>
+          <span class="badge">${PIN_ICON}${ad.residencia}</span>
           ${adNumber}
           <div class="card-top-right">${newBadge}${countBadge}</div>
         </div>
