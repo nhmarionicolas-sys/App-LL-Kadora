@@ -65,6 +65,14 @@ function cleanAdLibraryUrl(rawUrl) {
   }
 }
 
+// El id de Meta identifica de forma estable un mismo anuncio a través de
+// semanas distintas — se usa para detectar altas/bajas comparando extracciones.
+function adId(url) {
+  if (!url) return null;
+  const match = url.match(/[?&]id=([^&]+)/);
+  return match ? match[1] : null;
+}
+
 // ---------------------------------------------------------------------------
 // Carga y transformación de datos
 // ---------------------------------------------------------------------------
@@ -157,11 +165,43 @@ function getWeekAds() {
   }));
 }
 
+// Total de anuncios activos por cada extracción semanal, ordenado de más
+// antigua a más reciente — es la serie que alimenta el gráfico de evolución.
+function getWeeklyTotals() {
+  return getAvailableWeeks()
+    .slice()
+    .reverse()
+    .map(w => ({
+      week: w,
+      date: new Date(w),
+      total: rawAds.filter(a => weekKey(a.fechaExtraccion) === w).length,
+    }));
+}
+
+// Ids de anuncios que estaban activos la semana anterior a la seleccionada
+// y ya no aparecen en la seleccionada — misma lógica que "nuevos" pero a la
+// inversa, comparando por id de Meta en vez de por fecha_inicio.
+function getBajasIds() {
+  const weeks = getAvailableWeeks();
+  const idx = weeks.indexOf(selectedWeek);
+  if (idx < 0 || idx >= weeks.length - 1) return [];
+
+  const prevWeek = weeks[idx + 1];
+  const idsOf = w => new Set(
+    rawAds.filter(a => weekKey(a.fechaExtraccion) === w).map(a => adId(a.url)).filter(Boolean)
+  );
+  const prevIds = idsOf(prevWeek);
+  const currentIds = idsOf(selectedWeek);
+
+  return [...prevIds].filter(id => !currentIds.has(id));
+}
+
 // ---------------------------------------------------------------------------
 // Render
 // ---------------------------------------------------------------------------
 function renderAll() {
   renderKpis();
+  renderTrendChart();
   renderChips();
   renderCards();
 }
@@ -184,12 +224,119 @@ function renderKpis() {
 
   const idx = weeks.indexOf(selectedWeek);
   const kpiNuevos = document.getElementById('kpiNuevos');
+  const kpiBajas = document.getElementById('kpiBajas');
   if (idx > -1 && idx < weeks.length - 1) {
     const nuevos = weekAds.filter(a => a.isNew).length;
     kpiNuevos.textContent = nuevos;
+    kpiBajas.textContent = getBajasIds().length;
   } else {
     kpiNuevos.textContent = '—';
+    kpiBajas.textContent = '—';
   }
+}
+
+// ---------------------------------------------------------------------------
+// Gráfico de evolución semanal (SVG, sin librerías)
+// ---------------------------------------------------------------------------
+function renderTrendChart() {
+  const card = document.getElementById('trendCard');
+  const wrap = document.getElementById('trendChartWrap');
+  const svg = document.getElementById('trendChart');
+  const totals = getWeeklyTotals();
+
+  if (totals.length < 2) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+
+  const width = wrap.clientWidth;
+  const height = 200;
+  const pad = { top: 26, right: 16, bottom: 26, left: 16 };
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+  const values = totals.map(t => t.total);
+  const maxV = Math.max(...values);
+  const minV = Math.min(...values);
+  const range = maxV - minV || 1;
+  const xLeft = pad.left;
+  const xRight = width - pad.right;
+  const yTop = pad.top;
+  const yBottom = height - pad.bottom;
+
+  const xFor = i => totals.length === 1 ? (xLeft + xRight) / 2 : xLeft + (i / (totals.length - 1)) * (xRight - xLeft);
+  const yFor = v => yBottom - ((v - minV) / range) * (yBottom - yTop);
+  const points = totals.map((t, i) => [xFor(i), yFor(t.total)]);
+
+  const gridValues = [...new Set([minV, maxV])];
+  const gridLines = gridValues.map(v => `
+    <line x1="${xLeft}" y1="${yFor(v).toFixed(1)}" x2="${xRight}" y2="${yFor(v).toFixed(1)}" stroke="var(--border)" stroke-width="1" />
+    <text x="${xLeft}" y="${(yFor(v) - 6).toFixed(1)}" font-size="11" fill="var(--muted)">${v}</text>
+  `).join('');
+
+  const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const areaPath = `${linePath} L${points[points.length - 1][0].toFixed(1)},${yBottom} L${points[0][0].toFixed(1)},${yBottom} Z`;
+
+  const dots = points.map(([x, y], i) => `
+    <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="var(--blue)" stroke="#fff" stroke-width="2" />
+  `).join('');
+
+  const xLabels = totals.map((t, i) => `
+    <text x="${xFor(i).toFixed(1)}" y="${height - 6}" font-size="11" fill="var(--muted)" text-anchor="middle">${formatDate(t.date).replace(/ de \d{4}$/, '')}</text>
+  `).join('');
+
+  const last = points[points.length - 1];
+  const endLabel = `<text x="${last[0].toFixed(1)}" y="${(last[1] - 12).toFixed(1)}" font-size="12" font-weight="700" fill="var(--navy)" text-anchor="middle">${totals[totals.length - 1].total}</text>`;
+
+  svg.innerHTML = `
+    ${gridLines}
+    <path d="${areaPath}" fill="var(--blue)" fill-opacity="0.1" stroke="none" />
+    <path d="${linePath}" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    ${dots}
+    ${xLabels}
+    ${endLabel}
+    <line id="trendCrosshair" x1="0" y1="${yTop}" x2="0" y2="${yBottom}" stroke="var(--navy)" stroke-width="1" opacity="0" />
+  `;
+
+  setupTrendHover(svg, wrap, totals, points);
+}
+
+function setupTrendHover(svg, wrap, totals, points) {
+  const tooltip = document.getElementById('trendTooltip');
+  const tooltipValue = document.getElementById('trendTooltipValue');
+  const tooltipLabel = document.getElementById('trendTooltipLabel');
+  const crosshair = document.getElementById('trendCrosshair');
+
+  svg.onpointermove = (evt) => {
+    const rect = svg.getBoundingClientRect();
+    const x = evt.clientX - rect.left;
+    let nearest = 0;
+    let minDist = Infinity;
+    points.forEach(([px], i) => {
+      const d = Math.abs(px - x);
+      if (d < minDist) { minDist = d; nearest = i; }
+    });
+
+    const [px, py] = points[nearest];
+    crosshair.setAttribute('x1', px);
+    crosshair.setAttribute('x2', px);
+    crosshair.setAttribute('opacity', '1');
+
+    tooltipValue.textContent = `${totals[nearest].total} anuncios activos`;
+    tooltipLabel.textContent = formatDate(totals[nearest].date);
+    tooltip.hidden = false;
+
+    const wrapWidth = wrap.clientWidth;
+    tooltip.style.left = Math.min(Math.max(px - 60, 0), wrapWidth - 140) + 'px';
+    tooltip.style.top = Math.max(py - 14, 0) + 'px';
+  };
+
+  svg.onpointerleave = () => {
+    crosshair.setAttribute('opacity', '0');
+    tooltip.hidden = true;
+  };
 }
 
 function renderChips() {
@@ -331,10 +478,17 @@ document.getElementById('sortSelect').addEventListener('change', renderCards);
 document.getElementById('groupToggle').addEventListener('change', renderCards);
 document.getElementById('newOnlyToggle').addEventListener('change', renderCards);
 document.getElementById('refreshBtn').addEventListener('click', loadData);
+document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
 document.getElementById('weekSelect').addEventListener('change', (e) => {
   selectedWeek = e.target.value;
   activeResidencia = 'all';
   renderAll();
+});
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderTrendChart, 150);
 });
 
 loadData();

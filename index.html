@@ -31,6 +31,7 @@
   <section class="week-bar">
     <label for="weekSelect">Semana:</label>
     <select id="weekSelect" class="select"></select>
+    <button id="exportPdfBtn" class="btn-export" type="button">📄 Exportar PDF</button>
   </section>
 
   <section class="kpis" id="kpis">
@@ -43,6 +44,10 @@
       <span class="kpi-label">🆕 Anuncios nuevos esta semana</span>
     </div>
     <div class="kpi-card">
+      <span class="kpi-value down" id="kpiBajas">–</span>
+      <span class="kpi-label">📉 Anuncios dados de baja</span>
+    </div>
+    <div class="kpi-card">
       <span class="kpi-value" id="kpiResidencias">–</span>
       <span class="kpi-label">Residencias con campaña activa</span>
     </div>
@@ -53,6 +58,19 @@
     <div class="kpi-card">
       <span class="kpi-value" id="kpiTop">–</span>
       <span class="kpi-label">Residencia con más actividad</span>
+    </div>
+  </section>
+
+  <section class="trend-card" id="trendCard" hidden>
+    <div class="trend-head">
+      <h2>Evolución semanal de anuncios activos</h2>
+    </div>
+    <div class="trend-chart-wrap" id="trendChartWrap">
+      <svg id="trendChart" class="trend-chart"></svg>
+      <div class="trend-tooltip" id="trendTooltip" hidden>
+        <div class="trend-tooltip-value" id="trendTooltipValue"></div>
+        <div class="trend-tooltip-label" id="trendTooltipLabel"></div>
+      </div>
     </div>
   </section>
 
