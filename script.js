@@ -133,6 +133,37 @@ function populateWeekSelect() {
   }).join('');
 }
 
+// ---------------------------------------------------------------------------
+// Enlace compartible: la semana, la residencia y el resto de filtros viven
+// en la URL, para poder mandar un enlace directo ya filtrado.
+// ---------------------------------------------------------------------------
+function applyStateFromUrl() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('semana')) selectedWeek = params.get('semana');
+  if (params.get('residencia')) activeResidencia = params.get('residencia');
+  if (params.get('buscar')) document.getElementById('searchInput').value = params.get('buscar');
+  if (params.get('nuevos') === '1') document.getElementById('newOnlyToggle').checked = true;
+  if (params.get('agrupar') === '1') document.getElementById('groupToggle').checked = true;
+  if (params.get('orden')) document.getElementById('sortSelect').value = params.get('orden');
+}
+
+function syncUrlFromState() {
+  const params = new URLSearchParams();
+  if (selectedWeek) params.set('semana', selectedWeek);
+  if (activeResidencia !== 'all') params.set('residencia', activeResidencia);
+
+  const search = document.getElementById('searchInput').value.trim();
+  if (search) params.set('buscar', search);
+  if (document.getElementById('newOnlyToggle').checked) params.set('nuevos', '1');
+  if (document.getElementById('groupToggle').checked) params.set('agrupar', '1');
+
+  const sort = document.getElementById('sortSelect').value;
+  if (sort && sort !== 'recent') params.set('orden', sort);
+
+  const qs = params.toString();
+  history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+}
+
 function contentKey(ad) {
   return normalize(ad.residencia) + '|' + normalize(ad.texto);
 }
@@ -165,17 +196,9 @@ function getWeekAds() {
   }));
 }
 
-// Total de anuncios activos por cada extracción semanal, ordenado de más
-// antigua a más reciente — es la serie que alimenta el gráfico de evolución.
-function getWeeklyTotals() {
-  return getAvailableWeeks()
-    .slice()
-    .reverse()
-    .map(w => ({
-      week: w,
-      date: new Date(w),
-      total: rawAds.filter(a => weekKey(a.fechaExtraccion) === w).length,
-    }));
+function formatShort(date) {
+  if (!date) return '';
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
 // Ids de anuncios que estaban activos la semana anterior a la seleccionada
@@ -194,6 +217,18 @@ function getBajasIds() {
   const currentIds = idsOf(selectedWeek);
 
   return [...prevIds].filter(id => !currentIds.has(id));
+}
+
+// Días de media que llevan corriendo los anuncios activos de la semana
+// seleccionada, tomando como referencia la fecha de esa misma extracción
+// (no la fecha de hoy, para que semanas antiguas no den números inflados).
+function getAntiguedadMediaDias(weekAds) {
+  const referencia = weekAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
+  const validos = weekAds.filter(a => a.fechaInicio);
+  if (!referencia || !validos.length) return null;
+
+  const totalDias = validos.reduce((sum, a) => sum + Math.max(0, Math.round((referencia - a.fechaInicio) / 86400000)), 0);
+  return Math.round(totalDias / validos.length);
 }
 
 // ---------------------------------------------------------------------------
@@ -217,10 +252,13 @@ function renderKpis() {
   weekAds.forEach(a => { counts[a.residencia] = (counts[a.residencia] || 0) + 1; });
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
 
+  const antiguedad = getAntiguedadMediaDias(weekAds);
+
   document.getElementById('kpiTotal').textContent = total;
   document.getElementById('kpiResidencias').textContent = residencias.size;
   document.getElementById('kpiReciente').textContent = formatDate(masReciente);
   document.getElementById('kpiTop').textContent = top ? `${top[0]} (${top[1]})` : '—';
+  document.getElementById('kpiAntiguedad').textContent = antiguedad !== null ? `${antiguedad} días` : '—';
 
   const idx = weeks.indexOf(selectedWeek);
   const kpiNuevos = document.getElementById('kpiNuevos');
@@ -236,15 +274,80 @@ function renderKpis() {
 }
 
 // ---------------------------------------------------------------------------
-// Gráfico de evolución semanal (SVG, sin librerías)
+// Gráfico de evolución (SVG, sin librerías) — el desplegable decide qué
+// serie(s) se calculan; el render de abajo es genérico para las 4 vistas.
 // ---------------------------------------------------------------------------
+function buildChartDataset(view) {
+  const weeks = getAvailableWeeks().slice().reverse(); // ascendente: más antigua primero
+  const categories = weeks.map(w => formatShort(new Date(w)));
+
+  if (view === 'nuevos') {
+    const usable = weeks.slice(1);
+    return {
+      mode: 'line',
+      categories: usable.map(w => formatShort(new Date(w))),
+      series: [{
+        name: 'Anuncios nuevos',
+        color: 'var(--teal)',
+        values: usable.map(w => {
+          const prevWeek = weeks[weeks.indexOf(w) - 1];
+          return rawAds.filter(a => weekKey(a.fechaExtraccion) === w && a.fechaInicio && weekKey(a.fechaInicio) > prevWeek).length;
+        }),
+      }],
+    };
+  }
+
+  if (view === 'residencia') {
+    const residencias = [...new Set(rawAds.map(a => a.residencia))].sort();
+    return {
+      mode: 'multiline',
+      categories,
+      series: residencias.map(res => ({
+        name: res,
+        color: residenciaColor(res),
+        values: weeks.map(w => rawAds.filter(a => weekKey(a.fechaExtraccion) === w && a.residencia === res).length),
+      })),
+    };
+  }
+
+  if (view === 'dia') {
+    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const counts = new Array(7).fill(0);
+    const vistos = new Set();
+    rawAds.forEach(a => {
+      if (!a.fechaInicio) return;
+      const id = adId(a.url) || `${a.residencia}|${a.texto}|${a.fechaInicio.getTime()}`;
+      if (vistos.has(id)) return;
+      vistos.add(id);
+      counts[(a.fechaInicio.getDay() + 6) % 7]++; // getDay(): 0=domingo → reindexa a lunes=0
+    });
+    return {
+      mode: 'bar',
+      categories: dias.map(d => d.slice(0, 3)),
+      series: [{ name: 'Anuncios nuevos', color: 'var(--blue)', values: counts }],
+    };
+  }
+
+  // 'total' (por defecto)
+  return {
+    mode: 'line',
+    categories,
+    series: [{
+      name: 'Anuncios activos',
+      color: 'var(--blue)',
+      values: weeks.map(w => rawAds.filter(a => weekKey(a.fechaExtraccion) === w).length),
+    }],
+  };
+}
+
 function renderTrendChart() {
   const card = document.getElementById('trendCard');
   const wrap = document.getElementById('trendChartWrap');
   const svg = document.getElementById('trendChart');
-  const totals = getWeeklyTotals();
+  const view = document.getElementById('trendViewSelect').value;
+  const data = buildChartDataset(view);
 
-  if (totals.length < 2) {
+  if (data.categories.length < 2) {
     card.hidden = true;
     return;
   }
@@ -257,80 +360,136 @@ function renderTrendChart() {
   svg.setAttribute('height', height);
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
 
-  const values = totals.map(t => t.total);
-  const maxV = Math.max(...values);
-  const minV = Math.min(...values);
-  const range = maxV - minV || 1;
   const xLeft = pad.left;
   const xRight = width - pad.right;
   const yTop = pad.top;
   const yBottom = height - pad.bottom;
+  const n = data.categories.length;
 
-  const xFor = i => totals.length === 1 ? (xLeft + xRight) / 2 : xLeft + (i / (totals.length - 1)) * (xRight - xLeft);
+  const allValues = data.series.flatMap(s => s.values);
+  const maxV = Math.max(...allValues, 1);
+  const minV = data.mode === 'bar' ? 0 : Math.min(...allValues);
+  const range = (maxV - minV) || 1;
+
+  const xFor = i => n === 1 ? (xLeft + xRight) / 2 : xLeft + (i / (n - 1)) * (xRight - xLeft);
   const yFor = v => yBottom - ((v - minV) / range) * (yBottom - yTop);
-  const points = totals.map((t, i) => [xFor(i), yFor(t.total)]);
 
   const gridValues = [...new Set([minV, maxV])];
-  const gridLines = gridValues.map(v => `
+  let svgHtml = gridValues.map(v => `
     <line x1="${xLeft}" y1="${yFor(v).toFixed(1)}" x2="${xRight}" y2="${yFor(v).toFixed(1)}" stroke="var(--border)" stroke-width="1" />
     <text x="${xLeft}" y="${(yFor(v) - 6).toFixed(1)}" font-size="11" fill="var(--muted)">${v}</text>
   `).join('');
 
-  const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-  const areaPath = `${linePath} L${points[points.length - 1][0].toFixed(1)},${yBottom} L${points[0][0].toFixed(1)},${yBottom} Z`;
+  if (data.mode === 'bar') {
+    const bandWidth = (xRight - xLeft) / n;
+    const barWidth = Math.min(28, bandWidth * 0.5);
+    data.categories.forEach((label, i) => {
+      const cx = xLeft + bandWidth * (i + 0.5);
+      const v = data.series[0].values[i];
+      const y = yFor(v);
+      svgHtml += `
+        <rect class="bar-mark" data-idx="${i}" x="${(cx - barWidth / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(yBottom - y, 0).toFixed(1)}" rx="4" fill="${data.series[0].color}" />
+        <text x="${cx.toFixed(1)}" y="${height - 6}" font-size="11" fill="var(--muted)" text-anchor="middle">${label}</text>
+      `;
+    });
+  } else {
+    data.categories.forEach((label, i) => {
+      svgHtml += `<text x="${xFor(i).toFixed(1)}" y="${height - 6}" font-size="11" fill="var(--muted)" text-anchor="middle">${label}</text>`;
+    });
 
-  const dots = points.map(([x, y], i) => `
-    <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="var(--blue)" stroke="#fff" stroke-width="2" />
-  `).join('');
+    data.series.forEach(s => {
+      const points = s.values.map((v, i) => [xFor(i), yFor(v)]);
+      const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
 
-  const xLabels = totals.map((t, i) => `
-    <text x="${xFor(i).toFixed(1)}" y="${height - 6}" font-size="11" fill="var(--muted)" text-anchor="middle">${formatDate(t.date).replace(/ de \d{4}$/, '')}</text>
-  `).join('');
+      if (data.series.length === 1) {
+        const areaPath = `${linePath} L${points[points.length - 1][0].toFixed(1)},${yBottom} L${points[0][0].toFixed(1)},${yBottom} Z`;
+        svgHtml += `<path d="${areaPath}" fill="${s.color}" fill-opacity="0.1" stroke="none" />`;
+      }
 
-  const last = points[points.length - 1];
-  const endLabel = `<text x="${last[0].toFixed(1)}" y="${(last[1] - 12).toFixed(1)}" font-size="12" font-weight="700" fill="var(--navy)" text-anchor="middle">${totals[totals.length - 1].total}</text>`;
+      svgHtml += `<path d="${linePath}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`;
+      svgHtml += points.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${s.color}" stroke="#fff" stroke-width="2" />`).join('');
 
-  svg.innerHTML = `
-    ${gridLines}
-    <path d="${areaPath}" fill="var(--blue)" fill-opacity="0.1" stroke="none" />
-    <path d="${linePath}" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-    ${dots}
-    ${xLabels}
-    ${endLabel}
-    <line id="trendCrosshair" x1="0" y1="${yTop}" x2="0" y2="${yBottom}" stroke="var(--navy)" stroke-width="1" opacity="0" />
-  `;
+      if (data.series.length === 1) {
+        const last = points[points.length - 1];
+        svgHtml += `<text x="${last[0].toFixed(1)}" y="${(last[1] - 12).toFixed(1)}" font-size="12" font-weight="700" fill="var(--navy)" text-anchor="middle">${s.values[s.values.length - 1]}</text>`;
+      }
+    });
 
-  setupTrendHover(svg, wrap, totals, points);
+    svgHtml += `<line id="trendCrosshair" x1="0" y1="${yTop}" x2="0" y2="${yBottom}" stroke="var(--navy)" stroke-width="1" opacity="0" />`;
+  }
+
+  svg.innerHTML = svgHtml;
+  renderTrendLegend(data);
+  setupTrendHover(svg, wrap, data, xFor);
 }
 
-function setupTrendHover(svg, wrap, totals, points) {
+function renderTrendLegend(data) {
+  const legend = document.getElementById('trendLegend');
+  if (data.series.length < 2) {
+    legend.hidden = true;
+    legend.innerHTML = '';
+    return;
+  }
+  legend.hidden = false;
+  legend.innerHTML = data.series.map(s => `
+    <span class="trend-legend-item"><span class="trend-legend-swatch" style="background:${s.color}"></span>${escapeHtml(s.name)}</span>
+  `).join('');
+}
+
+function positionTooltip(tooltip, wrap, evt, snappedX) {
+  const wrapRect = wrap.getBoundingClientRect();
+  const left = snappedX !== undefined ? snappedX : (evt.clientX - wrapRect.left);
+  tooltip.style.left = Math.min(Math.max(left - 65, 0), wrapRect.width - 150) + 'px';
+  tooltip.style.top = Math.max(evt.clientY - wrapRect.top - 54, 0) + 'px';
+}
+
+function setupTrendHover(svg, wrap, data, xFor) {
   const tooltip = document.getElementById('trendTooltip');
   const tooltipValue = document.getElementById('trendTooltipValue');
   const tooltipLabel = document.getElementById('trendTooltipLabel');
-  const crosshair = document.getElementById('trendCrosshair');
 
+  if (data.mode === 'bar') {
+    svg.onpointermove = null;
+    svg.onpointerleave = null;
+    svg.querySelectorAll('.bar-mark').forEach(rect => {
+      rect.addEventListener('pointermove', (evt) => {
+        const i = Number(rect.dataset.idx);
+        tooltipValue.textContent = `${data.series[0].values[i]} anuncios`;
+        tooltipLabel.textContent = data.categories[i];
+        tooltip.hidden = false;
+        positionTooltip(tooltip, wrap, evt);
+      });
+      rect.addEventListener('pointerleave', () => { tooltip.hidden = true; });
+    });
+    return;
+  }
+
+  const crosshair = document.getElementById('trendCrosshair');
   svg.onpointermove = (evt) => {
     const rect = svg.getBoundingClientRect();
     const x = evt.clientX - rect.left;
+    const n = data.categories.length;
     let nearest = 0;
     let minDist = Infinity;
-    points.forEach(([px], i) => {
-      const d = Math.abs(px - x);
+    for (let i = 0; i < n; i++) {
+      const d = Math.abs(xFor(i) - x);
       if (d < minDist) { minDist = d; nearest = i; }
-    });
+    }
 
-    const [px, py] = points[nearest];
-    crosshair.setAttribute('x1', px);
-    crosshair.setAttribute('x2', px);
+    crosshair.setAttribute('x1', xFor(nearest));
+    crosshair.setAttribute('x2', xFor(nearest));
     crosshair.setAttribute('opacity', '1');
 
-    tooltipValue.textContent = `${totals[nearest].total} anuncios activos`;
-    tooltipLabel.textContent = formatDate(totals[nearest].date);
+    if (data.series.length === 1) {
+      tooltipValue.textContent = `${data.series[0].values[nearest]} ${data.series[0].name.toLowerCase()}`;
+    } else {
+      tooltipValue.innerHTML = data.series
+        .map(s => `<div><span style="color:${s.color}">●</span> ${escapeHtml(s.name)}: <strong>${s.values[nearest]}</strong></div>`)
+        .join('');
+    }
+    tooltipLabel.textContent = data.categories[nearest];
     tooltip.hidden = false;
-
-    const wrapWidth = wrap.clientWidth;
-    tooltip.style.left = Math.min(Math.max(px - 60, 0), wrapWidth - 140) + 'px';
-    tooltip.style.top = Math.max(py - 14, 0) + 'px';
+    positionTooltip(tooltip, wrap, evt, xFor(nearest));
   };
 
   svg.onpointerleave = () => {
@@ -362,6 +521,7 @@ function renderChips() {
       activeResidencia = chip.dataset.residencia;
       renderChips();
       renderCards();
+      syncUrlFromState();
     });
   });
 }
@@ -473,17 +633,31 @@ function escapeHtml(str) {
 // ---------------------------------------------------------------------------
 // Eventos
 // ---------------------------------------------------------------------------
-document.getElementById('searchInput').addEventListener('input', renderCards);
-document.getElementById('sortSelect').addEventListener('change', renderCards);
-document.getElementById('groupToggle').addEventListener('change', renderCards);
-document.getElementById('newOnlyToggle').addEventListener('change', renderCards);
+document.getElementById('searchInput').addEventListener('input', () => { renderCards(); syncUrlFromState(); });
+document.getElementById('sortSelect').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
+document.getElementById('groupToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
+document.getElementById('newOnlyToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('refreshBtn').addEventListener('click', loadData);
 document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
+document.getElementById('copyLinkBtn').addEventListener('click', async () => {
+  syncUrlFromState();
+  const btn = document.getElementById('copyLinkBtn');
+  const original = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(location.href);
+    btn.textContent = '✅ Enlace copiado';
+  } catch {
+    btn.textContent = '⚠️ Cópialo de la barra de direcciones';
+  }
+  setTimeout(() => { btn.textContent = original; }, 2000);
+});
 document.getElementById('weekSelect').addEventListener('change', (e) => {
   selectedWeek = e.target.value;
   activeResidencia = 'all';
   renderAll();
+  syncUrlFromState();
 });
+document.getElementById('trendViewSelect').addEventListener('change', renderTrendChart);
 
 let resizeTimer = null;
 window.addEventListener('resize', () => {
@@ -491,5 +665,6 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(renderTrendChart, 150);
 });
 
+applyStateFromUrl();
 loadData();
 setInterval(loadData, CONFIG.AUTO_REFRESH_MS);

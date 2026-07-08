@@ -31,39 +31,57 @@
   <section class="week-bar">
     <label for="weekSelect">Semana:</label>
     <select id="weekSelect" class="select"></select>
+    <button id="copyLinkBtn" class="btn-export" type="button">🔗 Copiar enlace</button>
     <button id="exportPdfBtn" class="btn-export" type="button">📄 Exportar PDF</button>
   </section>
 
   <section class="kpis" id="kpis">
-    <div class="kpi-card">
+    <div class="kpi-card" style="--kpi-accent: var(--navy)">
+      <span class="kpi-icon">📊</span>
       <span class="kpi-value" id="kpiTotal">–</span>
       <span class="kpi-label">Anuncios activos esta semana</span>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" style="--kpi-accent: var(--teal)">
+      <span class="kpi-icon">🆕</span>
       <span class="kpi-value" id="kpiNuevos">–</span>
-      <span class="kpi-label">🆕 Anuncios nuevos esta semana</span>
+      <span class="kpi-label">Anuncios nuevos esta semana</span>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-value down" id="kpiBajas">–</span>
-      <span class="kpi-label">📉 Anuncios dados de baja</span>
+    <div class="kpi-card" style="--kpi-accent: var(--coral)">
+      <span class="kpi-icon">📉</span>
+      <span class="kpi-value" id="kpiBajas">–</span>
+      <span class="kpi-label">Anuncios dados de baja</span>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" style="--kpi-accent: var(--blue)">
+      <span class="kpi-icon">🏘️</span>
       <span class="kpi-value" id="kpiResidencias">–</span>
       <span class="kpi-label">Residencias con campaña activa</span>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" style="--kpi-accent: var(--navy)">
+      <span class="kpi-icon">🕒</span>
       <span class="kpi-value" id="kpiReciente">–</span>
       <span class="kpi-label">Anuncio más reciente</span>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" style="--kpi-accent: var(--teal)">
+      <span class="kpi-icon">🏆</span>
       <span class="kpi-value" id="kpiTop">–</span>
       <span class="kpi-label">Residencia con más actividad</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent: var(--blue)">
+      <span class="kpi-icon">⏳</span>
+      <span class="kpi-value" id="kpiAntiguedad">–</span>
+      <span class="kpi-label">Antigüedad media de los anuncios</span>
     </div>
   </section>
 
   <section class="trend-card" id="trendCard" hidden>
     <div class="trend-head">
-      <h2>Evolución semanal de anuncios activos</h2>
+      <h2>Evolución de anuncios</h2>
+      <select id="trendViewSelect" class="select trend-select">
+        <option value="total">Total de anuncios activos</option>
+        <option value="nuevos">Anuncios nuevos por semana</option>
+        <option value="residencia">Evolución por residencia</option>
+        <option value="dia">Anuncios nuevos por día de la semana</option>
+      </select>
     </div>
     <div class="trend-chart-wrap" id="trendChartWrap">
       <svg id="trendChart" class="trend-chart"></svg>
@@ -72,6 +90,7 @@
         <div class="trend-tooltip-label" id="trendTooltipLabel"></div>
       </div>
     </div>
+    <div class="trend-legend" id="trendLegend" hidden></div>
   </section>
 
   <section class="controls">
