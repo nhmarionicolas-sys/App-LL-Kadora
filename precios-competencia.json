@@ -1,0 +1,137 @@
+{
+  "Granada": [
+    {
+      "competidor": "Xior Granada",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        { "tipo": "Studio Individual", "precios": [{ "periodo": null, "valor": 695 }] },
+        { "tipo": "Studio Superior", "precios": [{ "periodo": null, "valor": 775 }] },
+        { "tipo": "Studio Premium", "precios": [{ "periodo": null, "valor": 920 }] },
+        { "tipo": "Habitación individual sin cocina", "precios": [{ "periodo": null, "valor": 690 }] },
+        { "tipo": "Hab. Ind con cocina compartida", "precios": [{ "periodo": null, "valor": 685 }] },
+        { "tipo": "Estudio premium sencillo", "precios": [{ "periodo": null, "valor": 575 }] },
+        { "tipo": "Estudio premium deluxe", "precios": [{ "periodo": null, "valor": 990 }] }
+      ]
+    },
+    {
+      "competidor": "Livensa Living Cartuja",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        {
+          "tipo": "Studio doble",
+          "precios": [
+            { "periodo": "Año completo", "valor": 494 },
+            { "periodo": "Curso académico", "valor": 549 },
+            { "periodo": "Semestre", "valor": 631 },
+            { "periodo": "Mes", "valor": 659 }
+          ]
+        },
+        {
+          "tipo": "Studio Standard",
+          "precios": [
+            { "periodo": "Año completo", "valor": 680 },
+            { "periodo": "Curso académico", "valor": 756 },
+            { "periodo": "Semestre", "valor": 869 },
+            { "periodo": "Mes", "valor": 907 }
+          ]
+        },
+        {
+          "tipo": "Studio Superior",
+          "precios": [
+            { "periodo": "Año completo", "valor": 729 },
+            { "periodo": "Curso académico", "valor": 810 },
+            { "periodo": "Semestre", "valor": 932 },
+            { "periodo": "Mes", "valor": 972 }
+          ]
+        },
+        {
+          "tipo": "Studio Superior Terraza",
+          "precios": [
+            { "periodo": "Año completo", "valor": 821 },
+            { "periodo": "Curso académico", "valor": 912 },
+            { "periodo": "Semestre", "valor": 1049 },
+            { "periodo": "Mes", "valor": 1094 }
+          ]
+        },
+        {
+          "tipo": "Studio Premium",
+          "precios": [
+            { "periodo": "Año completo", "valor": 749 },
+            { "periodo": "Curso académico", "valor": 832 },
+            { "periodo": "Semestre", "valor": 957 },
+            { "periodo": "Mes", "valor": 998 }
+          ]
+        },
+        {
+          "tipo": "Studio Premium Accesible",
+          "precios": [
+            { "periodo": "Año completo", "valor": 749 },
+            { "periodo": "Curso académico", "valor": 832 },
+            { "periodo": "Semestre", "valor": 957 },
+            { "periodo": "Mes", "valor": 998 }
+          ]
+        }
+      ]
+    },
+    {
+      "competidor": "Livensa Fuentenueva",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        {
+          "tipo": "Studio Standard",
+          "precios": [
+            { "periodo": "Año completo", "valor": 768 },
+            { "periodo": "Curso académico", "valor": 853 },
+            { "periodo": "Semestre", "valor": 981 },
+            { "periodo": "Mes", "valor": 1024 }
+          ]
+        },
+        {
+          "tipo": "Studio Standard Accesible",
+          "precios": [
+            { "periodo": "Año completo", "valor": 768 },
+            { "periodo": "Curso académico", "valor": 853 },
+            { "periodo": "Semestre", "valor": 981 },
+            { "periodo": "Mes", "valor": 1024 }
+          ]
+        },
+        {
+          "tipo": "Studio Superior",
+          "precios": [
+            { "periodo": "Año completo", "valor": 831 },
+            { "periodo": "Curso académico", "valor": 923 },
+            { "periodo": "Semestre", "valor": 1061 },
+            { "periodo": "Mes", "valor": 1108 }
+          ]
+        },
+        {
+          "tipo": "Studio Superior Accesible",
+          "precios": [
+            { "periodo": "Año completo", "valor": 831 },
+            { "periodo": "Curso académico", "valor": 923 },
+            { "periodo": "Semestre", "valor": 1061 },
+            { "periodo": "Mes", "valor": 1108 }
+          ]
+        },
+        {
+          "tipo": "Studio Premium",
+          "precios": [
+            { "periodo": "Año completo", "valor": 850 },
+            { "periodo": "Curso académico", "valor": 944 },
+            { "periodo": "Semestre", "valor": 1086 },
+            { "periodo": "Mes", "valor": 1133 }
+          ]
+        },
+        {
+          "tipo": "Studio Premium Accesible",
+          "precios": [
+            { "periodo": "Año completo", "valor": 850 },
+            { "periodo": "Curso académico", "valor": 944 },
+            { "periodo": "Semestre", "valor": 1086 },
+            { "periodo": "Mes", "valor": 1133 }
+          ]
+        }
+      ]
+    }
+  ]
+}

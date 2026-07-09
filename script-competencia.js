@@ -8,6 +8,7 @@
 // ---------------------------------------------------------------------------
 const CONFIG = {
   DATA_URL: 'https://script.google.com/macros/s/AKfycbyujZIz-ozW1IpsbKG68SGZbHVuh5uyrpQQfXOKD3jOJlfKkUmhVQP09toaepvmit4X/exec',
+  PRICING_URL: 'precios-competencia.json',
   AUTO_REFRESH_MS: 5 * 60 * 1000,
 };
 
@@ -19,6 +20,7 @@ const COMPETIDOR_COLORS = {
 const FALLBACK_PALETTE = ['#d1495b', '#118ab2', '#ef8354', '#2ec4b6', '#ff6b6b', '#7048e8'];
 
 let rawAds = [];
+let pricingData = {};
 let activeCiudad = 'Granada';
 let activeCompetidor = 'all';
 
@@ -45,6 +47,67 @@ function parseDate(value) {
 function formatDate(date) {
   if (!date) return '—';
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatMonthYear(value) {
+  const d = parseDate(value);
+  if (!d) return '';
+  return d.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+}
+
+// ---------------------------------------------------------------------------
+// Tarifas: datos que Mario copia a mano del Excel de precios de la jefa (sin
+// acceso de edición al original), en un JSON aparte del pipeline de anuncios
+// porque cambian por meses, no por semanas, y no vienen de la Ad Library.
+// ---------------------------------------------------------------------------
+async function loadPricing() {
+  try {
+    const res = await fetch(CONFIG.PRICING_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    pricingData = await res.json();
+  } catch (err) {
+    console.error(err);
+    pricingData = {};
+  }
+  renderChips();
+  renderPricing();
+}
+
+// Solo se muestra con un competidor concreto seleccionado (no con "Todos"),
+// para no mezclar tarifas de varias residencias en la misma vista.
+function renderPricing() {
+  const container = document.getElementById('pricingSection');
+  if (!container) return;
+
+  if (activeCompetidor === 'all') {
+    container.innerHTML = '';
+    return;
+  }
+
+  const entries = (pricingData[activeCiudad] || []).filter(comp => comp.competidor === activeCompetidor);
+
+  if (!entries.length) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = entries.map(comp => `
+    <article class="pricing-card" style="--accent:${competidorColor(comp.competidor)}">
+      <div class="pricing-head">
+        <h3>💰 Tarifas · ${escapeHtml(comp.competidor)}</h3>
+        <span class="pricing-updated">Actualizado ${formatMonthYear(comp.actualizado)}</span>
+      </div>
+      ${comp.habitaciones.map(h => `
+        <div class="pricing-row">
+          <span class="pricing-room">${escapeHtml(h.tipo)}</span>
+          <span class="pricing-values">${h.precios.map(p => p.periodo
+            ? `<span class="pricing-tier"><b>${p.valor} €</b><small>${escapeHtml(p.periodo)}</small></span>`
+            : `<span class="pricing-tier"><b>${p.valor} €/mes</b></span>`
+          ).join('')}</span>
+        </div>
+      `).join('')}
+    </article>
+  `).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -121,6 +184,7 @@ function renderCityTabs() {
 
 function renderAll() {
   renderKpis();
+  renderPricing();
   renderChips();
   renderCards();
 }
@@ -154,7 +218,11 @@ function renderKpis() {
 function renderChips() {
   const container = document.getElementById('competidorChips');
   const ads = getCityAds();
-  const competidores = [...new Set(ads.map(a => a.competidor))].sort();
+  // Incluye también competidores que solo tienen tarifas y ningún anuncio
+  // activo todavía (como Livensa ahora mismo) — si no, su chip nunca
+  // aparecería y no habría forma de pinchar para ver su tarjeta de precios.
+  const pricingCompetidores = (pricingData[activeCiudad] || []).map(c => c.competidor);
+  const competidores = [...new Set([...ads.map(a => a.competidor), ...pricingCompetidores])].sort();
 
   const chipsHtml = [`<button class="chip ${activeCompetidor === 'all' ? 'active' : ''}" data-competidor="all">
       <span class="dot"></span>Todos (${ads.length})
@@ -173,6 +241,7 @@ function renderChips() {
     chip.addEventListener('click', () => {
       activeCompetidor = chip.dataset.competidor;
       renderChips();
+      renderPricing();
       renderCards();
     });
   });
@@ -262,6 +331,7 @@ document.getElementById('searchInputComp').addEventListener('input', renderCards
 document.getElementById('refreshBtnComp').addEventListener('click', loadData);
 
 loadData();
+loadPricing();
 setInterval(loadData, CONFIG.AUTO_REFRESH_MS);
 
 })();
