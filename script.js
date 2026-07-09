@@ -1,3 +1,4 @@
+(function () {
 // ---------------------------------------------------------------------------
 // Configuración: endpoint del Apps Script Web App (función doGet), que agrega
 // los anuncios de todas las pestañas semanales del Sheet en un único JSON.
@@ -735,3 +736,5 @@ window.addEventListener('resize', () => {
 applyStateFromUrl();
 loadData();
 setInterval(loadData, CONFIG.AUTO_REFRESH_MS);
+
+})();

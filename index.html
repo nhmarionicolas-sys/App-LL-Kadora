@@ -16,17 +16,29 @@
     <div class="brand">
       <img src="assets/kadora-logo.webp" alt="Kadora" class="brand-logo">
       <div class="brand-text">
-        <p>Monitor de Anuncios Activos · Meta Ads</p>
+        <p id="brandSubtitle">Monitor de Anuncios Activos · Meta Ads</p>
       </div>
     </div>
-    <div class="sync-status" id="syncStatus">
-      <span class="sync-dot" id="syncDot"></span>
-      <span id="syncLabel">Conectando con el Sheet…</span>
+    <div class="topbar-right">
+      <nav class="view-tabs" id="viewTabs">
+        <button class="view-tab active" data-view="kadora" type="button">Anuncios Kadora</button>
+        <button class="view-tab" data-view="competencia" type="button">Competencia</button>
+      </nav>
+      <div class="sync-status" id="syncStatus">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncLabel">Conectando con el Sheet…</span>
+      </div>
+      <div class="sync-status comp-accent" id="syncStatusComp" hidden>
+        <span class="sync-dot" id="syncDotComp"></span>
+        <span id="syncLabelComp">Conectando con el Sheet…</span>
+      </div>
     </div>
   </div>
 </header>
 
 <main class="wrap">
+
+<section id="viewKadora">
 
   <section class="week-bar">
     <label for="weekSelect">Semana:</label>
@@ -121,12 +133,85 @@
 
   <p class="empty-state" id="emptyState" hidden>No hay anuncios que coincidan con este filtro.</p>
 
+</section>
+
+<section id="viewCompetencia" hidden>
+
+  <section class="city-tabs" id="cityTabs"></section>
+
+  <section class="kpis" id="kpisComp">
+    <div class="kpi-card" style="--kpi-accent: var(--navy)">
+      <span class="kpi-icon">📊</span>
+      <span class="kpi-value" id="kpiTotalComp">–</span>
+      <span class="kpi-label">Anuncios activos</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent: var(--teal)">
+      <span class="kpi-icon">🏢</span>
+      <span class="kpi-value" id="kpiCompetidores">–</span>
+      <span class="kpi-label">Competidores con campaña activa</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent: var(--blue)">
+      <span class="kpi-icon">🕒</span>
+      <span class="kpi-value" id="kpiRecienteComp">–</span>
+      <span class="kpi-label">Anuncio más reciente</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent: var(--teal)">
+      <span class="kpi-icon">🏆</span>
+      <span class="kpi-value" id="kpiTopComp">–</span>
+      <span class="kpi-label">Competidor con más anuncios activos</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent: var(--coral)">
+      <span class="kpi-icon">⏳</span>
+      <span class="kpi-value" id="kpiAntiguedadComp">–</span>
+      <span class="kpi-label">Antigüedad media de los anuncios</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="chips" id="competidorChips"></div>
+    <div class="controls-right">
+      <input type="search" id="searchInputComp" class="search" placeholder="Buscar en el texto del anuncio…">
+    </div>
+  </section>
+
+  <section class="grid" id="cardsGridComp"></section>
+
+  <p class="empty-state" id="emptyStateComp" hidden>No hay anuncios que coincidan con este filtro.</p>
+
+</section>
+
 </main>
 
 <footer class="footer">
-  <p>Datos sincronizados automáticamente cada lunes desde la API de Meta · <button id="refreshBtn" class="link-btn">Actualizar ahora</button></p>
+  <p id="footerKadora">Datos sincronizados automáticamente cada lunes desde la API de Meta · <button id="refreshBtn" class="link-btn">Actualizar ahora</button></p>
+  <p id="footerComp" hidden>Datos de la Biblioteca de Anuncios de Meta (pública) · Sin imágenes: no tenemos acceso al Ads Manager de la competencia · <button id="refreshBtnComp" class="link-btn">Actualizar ahora</button></p>
 </footer>
 
 <script src="script.js"></script>
+<script src="script-competencia.js"></script>
+<script>
+(function () {
+  const tabs = document.querySelectorAll('.view-tab');
+  const views = { kadora: document.getElementById('viewKadora'), competencia: document.getElementById('viewCompetencia') };
+  const footers = { kadora: document.getElementById('footerKadora'), competencia: document.getElementById('footerComp') };
+  const syncBoxes = { kadora: document.getElementById('syncStatus'), competencia: document.getElementById('syncStatusComp') };
+  const subtitle = document.getElementById('brandSubtitle');
+  const SUBTITLES = { kadora: 'Monitor de Anuncios Activos · Meta Ads', competencia: 'Monitor de Competencia · Meta Ads' };
+
+  function activar(view) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    Object.entries(views).forEach(([k, el]) => { el.hidden = k !== view; });
+    Object.entries(footers).forEach(([k, el]) => { el.hidden = k !== view; });
+    Object.entries(syncBoxes).forEach(([k, el]) => { el.hidden = k !== view; });
+    document.body.classList.toggle('competencia-active', view === 'competencia');
+    subtitle.textContent = SUBTITLES[view];
+    location.hash = view === 'competencia' ? '#competencia' : '';
+  }
+
+  tabs.forEach(tab => tab.addEventListener('click', () => activar(tab.dataset.view)));
+
+  activar(location.hash === '#competencia' ? 'competencia' : 'kadora');
+})();
+</script>
 </body>
 </html>
