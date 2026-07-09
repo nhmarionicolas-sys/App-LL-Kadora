@@ -49,7 +49,10 @@ function formatDate(date) {
 
 function weekKey(date) {
   if (!date) return null;
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 // El ad_snapshot_url que da la API de Meta lleva el access_token incrustado.
@@ -93,6 +96,7 @@ async function loadData() {
         texto: String(item.texto).trim(),
         fechaInicio: parseDate(item.fecha_inicio),
         url: cleanAdLibraryUrl(item.url),
+        imagen: item.imagen || null,
       }));
 
     const masReciente = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
@@ -144,6 +148,7 @@ function applyStateFromUrl() {
   if (params.get('residencia')) activeResidencia = params.get('residencia');
   if (params.get('buscar')) document.getElementById('searchInput').value = params.get('buscar');
   if (params.get('nuevos') === '1') document.getElementById('newOnlyToggle').checked = true;
+  if (params.get('bajas') === '1') document.getElementById('bajasOnlyToggle').checked = true;
   if (params.get('agrupar') === '1') document.getElementById('groupToggle').checked = true;
   if (params.get('orden')) document.getElementById('sortSelect').value = params.get('orden');
 }
@@ -156,6 +161,7 @@ function syncUrlFromState() {
   const search = document.getElementById('searchInput').value.trim();
   if (search) params.set('buscar', search);
   if (document.getElementById('newOnlyToggle').checked) params.set('nuevos', '1');
+  if (document.getElementById('bajasOnlyToggle').checked) params.set('bajas', '1');
   if (document.getElementById('groupToggle').checked) params.set('agrupar', '1');
 
   const sort = document.getElementById('sortSelect').value;
@@ -170,16 +176,20 @@ function contentKey(ad) {
 }
 
 // Numera cada anuncio dentro de su residencia (orden estable por fecha de
-// inicio) y marca como "nuevo" el que empezó a correr después de la última
-// comprobación (fecha_inicio posterior a la extracción anterior) — es la
-// única definición de "nuevo" en toda la web, para que el KPI y el filtro
-// siempre coincidan en el mismo número.
+// inicio) y marca como "nuevo" el que tiene un id de Meta que no estaba entre
+// los anuncios de la semana anterior — mismo criterio (comparar ids) que usa
+// getBajasIds() pero en sentido inverso, para que "nuevos" y "bajas" sean
+// simétricos y el total de la semana siempre cuadre matemáticamente
+// (total_actual = total_anterior - bajas + nuevos, sin excepciones).
 function getWeekAds() {
   const weekAds = rawAds.filter(a => weekKey(a.fechaExtraccion) === selectedWeek);
 
   const weeks = getAvailableWeeks();
   const idx = weeks.indexOf(selectedWeek);
   const prevWeek = idx > -1 && idx < weeks.length - 1 ? weeks[idx + 1] : null;
+  const prevIds = prevWeek
+    ? new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(a => adId(a.url)).filter(Boolean))
+    : null;
 
   const ordenado = [...weekAds].sort((a, b) => (a.fechaInicio || 0) - (b.fechaInicio || 0));
   const contadores = {};
@@ -193,7 +203,7 @@ function getWeekAds() {
   return weekAds.map(a => ({
     ...a,
     numero: numeroPorAd.get(a),
-    isNew: prevWeek ? !!(a.fechaInicio && weekKey(a.fechaInicio) > prevWeek) : false,
+    isNew: prevIds ? !prevIds.has(adId(a.url)) : false,
   }));
 }
 
@@ -218,6 +228,25 @@ function getBajasIds() {
   const currentIds = idsOf(selectedWeek);
 
   return [...prevIds].filter(id => !currentIds.has(id));
+}
+
+// Anuncios completos (texto, residencia, fechas) de la semana anterior cuyo
+// id de Meta ya no aparece en la semana seleccionada — mismos ids que
+// getBajasIds(), pero con los datos completos para poder mostrarlos como tarjetas.
+function getBajasAds() {
+  const weeks = getAvailableWeeks();
+  const idx = weeks.indexOf(selectedWeek);
+  if (idx < 0 || idx >= weeks.length - 1) return [];
+
+  const prevWeek = weeks[idx + 1];
+  const bajaIds = new Set(getBajasIds());
+  return rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek && bajaIds.has(adId(a.url)));
+}
+
+// Población base sobre la que se calculan los chips de residencia y el grid:
+// la semana seleccionada, o los anuncios de baja si ese filtro está activo.
+function getBaseAds() {
+  return document.getElementById('bajasOnlyToggle').checked ? getBajasAds() : getWeekAds();
 }
 
 // Días de media que llevan corriendo los anuncios activos de la semana
@@ -292,7 +321,8 @@ function buildChartDataset(view) {
         color: 'var(--teal)',
         values: usable.map(w => {
           const prevWeek = weeks[weeks.indexOf(w) - 1];
-          return rawAds.filter(a => weekKey(a.fechaExtraccion) === w && a.fechaInicio && weekKey(a.fechaInicio) > prevWeek).length;
+          const idsPrev = new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(a => adId(a.url)).filter(Boolean));
+          return rawAds.filter(a => weekKey(a.fechaExtraccion) === w && !idsPrev.has(adId(a.url))).length;
         }),
       }],
     };
@@ -501,7 +531,7 @@ function setupTrendHover(svg, wrap, data, xFor) {
 
 function renderChips() {
   const container = document.getElementById('residenciaChips');
-  const weekAds = getWeekAds();
+  const weekAds = getBaseAds();
   const residencias = [...new Set(weekAds.map(a => a.residencia))].sort();
 
   const chipsHtml = [`<button class="chip ${activeResidencia === 'all' ? 'active' : ''}" data-residencia="all">
@@ -530,7 +560,8 @@ function renderChips() {
 function getFilteredAds() {
   const search = normalize(document.getElementById('searchInput').value);
   const newOnly = document.getElementById('newOnlyToggle').checked;
-  let ads = getWeekAds().filter(a => {
+  const bajasOnly = document.getElementById('bajasOnlyToggle').checked;
+  let ads = getBaseAds().map(a => ({ ...a, isBaja: bajasOnly })).filter(a => {
     const matchesResidencia = activeResidencia === 'all' || a.residencia === activeResidencia;
     const matchesSearch = !search || normalize(a.texto).includes(search);
     const matchesNew = !newOnly || a.isNew;
@@ -578,6 +609,7 @@ function renderSkeletonCards(count = 6) {
       <div class="card-top">
         <div class="skeleton skeleton-badge"></div>
       </div>
+      <div class="skeleton skeleton-image"></div>
       <div class="skeleton skeleton-line"></div>
       <div class="skeleton skeleton-line short"></div>
       <div class="skeleton skeleton-line shorter"></div>
@@ -604,8 +636,10 @@ function renderCards() {
   grid.innerHTML = ads.map((ad, idx) => {
     const color = residenciaColor(ad.residencia);
     const countBadge = ad.count > 1 ? `<span class="dup-count">${ad.count} anuncios activos</span>` : '';
-    const adNumber = ad.count === 1 ? `<span class="ad-number">Anuncio ${ad.numero}</span>` : '';
+    const adNumber = (ad.count === 1 && ad.numero) ? `<span class="ad-number">Anuncio ${ad.numero}</span>` : '';
     const newBadge = ad.isNew ? `<span class="new-badge">🆕 Nuevo</span>` : '';
+    const bajaBadge = ad.isBaja ? `<span class="baja-badge">🔻 De baja</span>` : '';
+    const imagenHtml = ad.imagen ? `<img class="card-image" src="${ad.imagen}" alt="" loading="lazy">` : '';
 
     const linkSection = ad.count > 1
       ? `<div class="group-links">${ad.urls.map((u, i) => u
@@ -617,12 +651,13 @@ function renderCards() {
           : `<span class="card-link disabled">Sin enlace</span>`);
 
     return `
-      <article class="card" style="--accent:${color}">
+      <article class="card ${ad.isBaja ? 'is-baja' : ''}" style="--accent:${color}">
         <div class="card-top">
           <span class="badge">${PIN_ICON}${ad.residencia}</span>
           ${adNumber}
-          <div class="card-top-right">${newBadge}${countBadge}</div>
+          <div class="card-top-right">${newBadge}${bajaBadge}${countBadge}</div>
         </div>
+        ${imagenHtml}
         <p class="card-text" id="text-${idx}">${escapeHtml(ad.texto)}</p>
         <button class="card-more" data-target="text-${idx}">Ver más</button>
         <div class="card-bottom">
@@ -658,7 +693,17 @@ function escapeHtml(str) {
 document.getElementById('searchInput').addEventListener('input', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('sortSelect').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('groupToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
-document.getElementById('newOnlyToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
+document.getElementById('newOnlyToggle').addEventListener('change', (e) => {
+  if (e.target.checked) document.getElementById('bajasOnlyToggle').checked = false;
+  renderCards();
+  syncUrlFromState();
+});
+document.getElementById('bajasOnlyToggle').addEventListener('change', (e) => {
+  if (e.target.checked) document.getElementById('newOnlyToggle').checked = false;
+  renderChips();
+  renderCards();
+  syncUrlFromState();
+});
 document.getElementById('refreshBtn').addEventListener('click', loadData);
 document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
 document.getElementById('copyLinkBtn').addEventListener('click', async () => {
