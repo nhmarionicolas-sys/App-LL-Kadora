@@ -974,6 +974,7 @@ body.competencia-active .baja-badge {
   .card, .kpi-card, .pricing-card, .city-tab, .chip, .trend-card {
     box-shadow: none !important;
     border: 1px solid var(--border);
+    break-inside: avoid;
   }
   .card-text { -webkit-line-clamp: unset !important; }
 }
