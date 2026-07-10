@@ -877,10 +877,6 @@ body.competencia-active .baja-badge {
 
 /* ---------- Skeleton loading ---------- */
 
-.skeleton-card::before {
-  display: none;
-}
-
 .skeleton {
   background: linear-gradient(90deg, var(--border) 25%, #eef1f8 37%, var(--border) 63%);
   background-size: 400% 100%;
