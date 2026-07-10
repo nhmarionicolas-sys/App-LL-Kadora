@@ -4,22 +4,38 @@
   --coral: #E56A54;
   --blue: #307FE2;
   --teal: #279989;
-  --bg: #f4f6fb;
-  --card: #ffffff;
-  --text: #1c2333;
-  --muted: #6b7385;
+
+  --surface-a: #eef1f6;
+  --surface-b: #e6eaf1;
+  --shadow-hi: rgba(255, 255, 255, .85);
+  --shadow-lo: rgba(28, 60, 110, .16);
+  --ink: #0c2340;
+  --text: #243252;
+  --muted: #5c6a86;
+  --muted-2: #7a87a1;
   --border: #e6e9f2;
-  --accent-default: #5b6b8c;
-  --radius: 16px;
-  --shadow: 0 2px 10px rgba(12, 35, 64, 0.06);
-  --shadow-hover: 0 10px 24px rgba(12, 35, 64, 0.12);
+
+  --radius-lg: 22px;
+  --radius-md: 14px;
+}
+
+/* Competencia reutiliza el mismo sistema de tokens en su variante oscura
+   ("Glow Clay") — ningún componente de abajo necesita reglas duplicadas
+   por vista, solo lee estas variables. */
+body.competencia-active {
+  --surface-a: #132444;
+  --surface-b: #0d1c36;
+  --shadow-hi: rgba(255, 255, 255, .035);
+  --shadow-lo: rgba(0, 0, 0, .55);
+  --ink: #ffffff;
+  --text: rgba(255, 255, 255, .86);
+  --muted: rgba(255, 255, 255, .5);
+  --muted-2: rgba(255, 255, 255, .4);
+  --border: rgba(255, 255, 255, .1);
 }
 
 * { box-sizing: border-box; }
 
-/* Cualquier elemento con el atributo hidden debe ocultarse siempre, aunque
-   tenga una clase (como .sync-status, display:flex) que fije su display —
-   si no, hidden="" no tiene ningún efecto sobre esos elementos concretos. */
 [hidden] { display: none !important; }
 
 body {
@@ -27,22 +43,23 @@ body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background:
-    radial-gradient(1100px 550px at 12% -8%, color-mix(in srgb, var(--blue) 8%, transparent), transparent 60%),
-    radial-gradient(900px 480px at 100% 0%, color-mix(in srgb, var(--coral) 6%, transparent), transparent 55%),
-    var(--bg);
-  background-attachment: fixed, fixed, fixed;
+    radial-gradient(560px 380px at 8% 0%, rgba(48, 127, 226, .18), transparent 62%),
+    radial-gradient(520px 420px at 95% 8%, rgba(39, 153, 137, .16), transparent 60%),
+    radial-gradient(600px 460px at 40% 110%, rgba(229, 106, 84, .14), transparent 65%),
+    linear-gradient(160deg, var(--surface-a), var(--surface-b));
+  background-attachment: fixed, fixed, fixed, fixed;
   transition: background 0.3s ease;
 }
 
-/* Mismo truco de degradado radial que el fondo por defecto, pero girado
-   hacia coral+verde-azulado en vez de azul+coral — un tinte de ambiente
-   distinto para Competencia sin tocar el navy del header. */
+/* Competencia: mismo mesh, mucho más saturado/oscuro (Glow Clay) — es lo
+   que hace que se note de un vistazo que estás en la otra vista. */
 body.competencia-active {
   background:
-    radial-gradient(1100px 550px at 12% -8%, color-mix(in srgb, var(--coral) 10%, transparent), transparent 60%),
-    radial-gradient(900px 480px at 100% 0%, color-mix(in srgb, var(--teal) 7%, transparent), transparent 55%),
-    var(--bg);
-  background-attachment: fixed, fixed, fixed;
+    radial-gradient(650px 460px at 6% -10%, rgba(48, 127, 226, .5), transparent 60%),
+    radial-gradient(600px 460px at 100% 0%, rgba(39, 153, 137, .45), transparent 58%),
+    radial-gradient(650px 520px at 45% 115%, rgba(229, 106, 84, .4), transparent 62%),
+    #0a1526;
+  background-attachment: fixed, fixed, fixed, fixed;
 }
 
 /* ---------- Header ---------- */
