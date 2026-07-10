@@ -956,9 +956,24 @@ body.competencia-active .baja-badge {
     display: none !important;
   }
 
-  body { background: #fff; }
-  .topbar { position: static; box-shadow: none; }
+  :root, body.competencia-active {
+    --surface-a: #ffffff;
+    --surface-b: #ffffff;
+    --shadow-hi: transparent;
+    --shadow-lo: transparent;
+    --ink: #0c2340;
+    --text: #243252;
+    --muted: #5c6a86;
+    --muted-2: #7a87a1;
+    --border: #e6e9f2;
+  }
+
+  body, body.competencia-active { background: #fff; }
+  .topbar { position: static; box-shadow: none; margin: 0 auto 16px; }
   .trend-tooltip { display: none !important; }
-  .card, .kpi-card { break-inside: avoid; box-shadow: none; }
+  .card, .kpi-card, .pricing-card, .city-tab, .chip, .trend-card {
+    box-shadow: none !important;
+    border: 1px solid var(--border);
+  }
   .card-text { -webkit-line-clamp: unset !important; }
 }
