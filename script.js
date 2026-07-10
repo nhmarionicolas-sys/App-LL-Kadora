@@ -628,7 +628,7 @@ function renderCards() {
     const adNumber = (ad.count === 1 && ad.numero) ? `<span class="ad-number">Anuncio ${ad.numero}</span>` : '';
     const newBadge = ad.isNew ? `<span class="new-badge">Nuevo</span>` : '';
     const bajaBadge = ad.isBaja ? `<span class="baja-badge">De baja</span>` : '';
-    const imagenHtml = ad.imagen ? `<img class="card-image" src="${ad.imagen}" alt="" loading="lazy">` : '';
+    const imagenHtml = ad.imagen ? `<img class="card-image" src="${ad.imagen}" alt="" loading="lazy" onerror="this.remove()">` : '';
 
     const linkSection = ad.count > 1
       ? `<div class="group-links">${ad.urls.map((u, i) => u
