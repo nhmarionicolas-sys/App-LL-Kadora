@@ -56,27 +56,6 @@ function weekKey(date) {
   return `${y}-${m}-${d}`;
 }
 
-// El ad_snapshot_url que da la API de Meta lleva el access_token incrustado.
-// Reconstruimos el enlace público de la Biblioteca de Anuncios solo con el id,
-// para no exponer el token en una web de cara al cliente.
-function cleanAdLibraryUrl(rawUrl) {
-  if (!rawUrl) return null;
-  try {
-    const id = new URL(rawUrl).searchParams.get('id');
-    return id ? `https://www.facebook.com/ads/library/?id=${id}` : null;
-  } catch {
-    return null;
-  }
-}
-
-// El id de Meta identifica de forma estable un mismo anuncio a través de
-// semanas distintas — se usa para detectar altas/bajas comparando extracciones.
-function adId(url) {
-  if (!url) return null;
-  const match = url.match(/[?&]id=([^&]+)/);
-  return match ? match[1] : null;
-}
-
 // ---------------------------------------------------------------------------
 // Carga y transformación de datos
 // ---------------------------------------------------------------------------
@@ -92,11 +71,12 @@ async function loadData() {
     rawAds = items
       .filter(item => item.texto && String(item.texto).trim())
       .map(item => ({
+        id: item.id || null,
         fechaExtraccion: parseDate(item.fecha_extraccion),
         residencia: (item.residencia || 'General').trim(),
         texto: String(item.texto).trim(),
         fechaInicio: parseDate(item.fecha_inicio),
-        url: cleanAdLibraryUrl(item.url),
+        url: item.url || null,
         imagen: item.imagen || null,
       }));
 
@@ -189,7 +169,7 @@ function getWeekAds() {
   const idx = weeks.indexOf(selectedWeek);
   const prevWeek = idx > -1 && idx < weeks.length - 1 ? weeks[idx + 1] : null;
   const prevIds = prevWeek
-    ? new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(a => adId(a.url)).filter(Boolean))
+    ? new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(a => a.id).filter(Boolean))
     : null;
 
   const ordenado = [...weekAds].sort((a, b) => (a.fechaInicio || 0) - (b.fechaInicio || 0));
@@ -204,7 +184,7 @@ function getWeekAds() {
   return weekAds.map(a => ({
     ...a,
     numero: numeroPorAd.get(a),
-    isNew: prevIds ? !prevIds.has(adId(a.url)) : false,
+    isNew: prevIds ? !prevIds.has(a.id) : false,
   }));
 }
 
@@ -223,7 +203,7 @@ function getBajasIds() {
 
   const prevWeek = weeks[idx + 1];
   const idsOf = w => new Set(
-    rawAds.filter(a => weekKey(a.fechaExtraccion) === w).map(a => adId(a.url)).filter(Boolean)
+    rawAds.filter(a => weekKey(a.fechaExtraccion) === w).map(a => a.id).filter(Boolean)
   );
   const prevIds = idsOf(prevWeek);
   const currentIds = idsOf(selectedWeek);
@@ -241,7 +221,7 @@ function getBajasAds() {
 
   const prevWeek = weeks[idx + 1];
   const bajaIds = new Set(getBajasIds());
-  return rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek && bajaIds.has(adId(a.url)));
+  return rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek && bajaIds.has(a.id));
 }
 
 // Población base sobre la que se calculan los chips de residencia y el grid:
@@ -322,8 +302,8 @@ function buildChartDataset(view) {
         color: 'var(--teal)',
         values: usable.map(w => {
           const prevWeek = weeks[weeks.indexOf(w) - 1];
-          const idsPrev = new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(a => adId(a.url)).filter(Boolean));
-          return rawAds.filter(a => weekKey(a.fechaExtraccion) === w && !idsPrev.has(adId(a.url))).length;
+          const idsPrev = new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).map(a => a.id).filter(Boolean));
+          return rawAds.filter(a => weekKey(a.fechaExtraccion) === w && !idsPrev.has(a.id)).length;
         }),
       }],
     };
@@ -348,7 +328,7 @@ function buildChartDataset(view) {
     const vistos = new Set();
     rawAds.forEach(a => {
       if (!a.fechaInicio) return;
-      const id = adId(a.url) || `${a.residencia}|${a.texto}|${a.fechaInicio.getTime()}`;
+      const id = a.id || `${a.residencia}|${a.texto}|${a.fechaInicio.getTime()}`;
       if (vistos.has(id)) return;
       vistos.add(id);
       counts[(a.fechaInicio.getDay() + 6) % 7]++; // getDay(): 0=domingo → reindexa a lunes=0
