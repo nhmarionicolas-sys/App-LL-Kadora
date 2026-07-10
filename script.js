@@ -415,12 +415,20 @@ function renderTrendChart() {
   if (data.mode === 'bar') {
     const bandWidth = (xRight - xLeft) / n;
     const barWidth = Math.min(28, bandWidth * 0.5);
+    svgHtml += `
+      <defs>
+        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6fb0ff" />
+          <stop offset="100%" stop-color="#307FE2" />
+        </linearGradient>
+      </defs>
+    `;
     data.categories.forEach((label, i) => {
       const cx = xLeft + bandWidth * (i + 0.5);
       const v = data.series[0].values[i];
       const y = yFor(v);
       svgHtml += `
-        <rect class="bar-mark" data-idx="${i}" x="${(cx - barWidth / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(yBottom - y, 0).toFixed(1)}" rx="4" fill="${data.series[0].color}" />
+        <rect class="bar-mark" data-idx="${i}" x="${(cx - barWidth / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(yBottom - y, 0).toFixed(1)}" rx="6" fill="url(#barGrad)" />
         <text x="${cx.toFixed(1)}" y="${height - 6}" font-size="11" fill="var(--muted)" text-anchor="middle">${label}</text>
       `;
     });

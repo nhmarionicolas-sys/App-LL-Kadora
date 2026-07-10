@@ -357,11 +357,10 @@ body.competencia-active .orb--coral { box-shadow: 0 0 18px -2px rgba(229, 106, 8
 /* ---------- Trend chart ---------- */
 
 .trend-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: linear-gradient(160deg, var(--surface-a), var(--surface-b));
+  border-radius: var(--radius-lg);
   padding: 20px 20px 10px;
-  box-shadow: var(--shadow);
+  box-shadow: -6px -6px 13px var(--shadow-hi), 8px 8px 18px var(--shadow-lo);
   margin-bottom: 28px;
 }
 
@@ -406,7 +405,7 @@ body.competencia-active .orb--coral { box-shadow: 0 0 18px -2px rgba(229, 106, 8
   font-size: 12px;
   line-height: 1.4;
   white-space: nowrap;
-  box-shadow: var(--shadow-hover);
+  box-shadow: -4px -4px 9px var(--shadow-hi), 6px 8px 16px var(--shadow-lo);
   transform: translateY(-100%);
   z-index: 2;
 }
