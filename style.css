@@ -26,7 +26,7 @@
 body.competencia-active {
   --surface-a: #f2f4f9;
   --surface-b: #dde3ec;
-  --shadow-hi: rgba(255, 255, 255, .75);
+  --shadow-hi: rgba(255, 255, 255, .35);
   --shadow-lo: rgba(12, 35, 64, .30);
   --ink: #0c2340;
   --text: #243252;
@@ -44,11 +44,10 @@ body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background:
-    radial-gradient(560px 380px at 8% 0%, rgba(48, 127, 226, .18), transparent 62%),
-    radial-gradient(520px 420px at 95% 8%, rgba(39, 153, 137, .16), transparent 60%),
-    radial-gradient(600px 460px at 40% 110%, rgba(229, 106, 84, .14), transparent 65%),
-    linear-gradient(160deg, var(--surface-a), var(--surface-b));
-  background-attachment: fixed, fixed, fixed, fixed;
+    radial-gradient(900px 650px at 15% 90%, rgba(48, 127, 226, .22), transparent 70%),
+    radial-gradient(800px 650px at 100% 55%, rgba(39, 153, 137, .18), transparent 68%),
+    #f7f9fc;
+  background-attachment: fixed, fixed, fixed;
   transition: background 0.3s ease;
 }
 
@@ -56,7 +55,7 @@ body {
    pantalla en diagonal — las tarjetas claras flotan encima con relieve
    real, mucho contraste con el fondo. */
 body.competencia-active {
-  background: linear-gradient(160deg, #0C2340 0%, #279989 50%, #E56A54 100%);
+  background: linear-gradient(160deg, #798696 0%, #88c7be 50%, #f1ada1 100%);
   background-attachment: fixed;
 }
 
