@@ -19,19 +19,20 @@
   --radius-md: 14px;
 }
 
-/* Competencia reutiliza el mismo sistema de tokens en su variante oscura
-   ("Glow Clay") — ningún componente de abajo necesita reglas duplicadas
-   por vista, solo lee estas variables. */
+/* Competencia reutiliza EXACTAMENTE el mismo sistema "soft UI" claro de
+   Kadora (mismas tarjetas, mismo relieve, mismo aire) — lo único que
+   cambia es qué color domina el mesh de fondo y la sombra: aquí el
+   navy de marca pesa más que el azul/teal de la vista principal. */
 body.competencia-active {
-  --surface-a: #132444;
-  --surface-b: #0d1c36;
-  --shadow-hi: rgba(255, 255, 255, .035);
-  --shadow-lo: rgba(0, 0, 0, .55);
-  --ink: #ffffff;
-  --text: rgba(255, 255, 255, .86);
-  --muted: rgba(255, 255, 255, .5);
-  --muted-2: rgba(255, 255, 255, .4);
-  --border: rgba(255, 255, 255, .1);
+  --surface-a: #f2f4f9;
+  --surface-b: #dde3ec;
+  --shadow-hi: rgba(255, 255, 255, .75);
+  --shadow-lo: rgba(12, 35, 64, .30);
+  --ink: #0c2340;
+  --text: #243252;
+  --muted: #5c6a86;
+  --muted-2: #7a87a1;
+  --border: #dbe0ea;
 }
 
 * { box-sizing: border-box; }
@@ -51,15 +52,12 @@ body {
   transition: background 0.3s ease;
 }
 
-/* Competencia: mismo mesh, mucho más saturado/oscuro (Glow Clay) — es lo
-   que hace que se note de un vistazo que estás en la otra vista. */
+/* Competencia: el degradado de los tres colores de marca cubre toda la
+   pantalla en diagonal — las tarjetas claras flotan encima con relieve
+   real, mucho contraste con el fondo. */
 body.competencia-active {
-  background:
-    radial-gradient(650px 460px at 6% -10%, rgba(48, 127, 226, .5), transparent 60%),
-    radial-gradient(600px 460px at 100% 0%, rgba(39, 153, 137, .45), transparent 58%),
-    radial-gradient(650px 520px at 45% 115%, rgba(229, 106, 84, .4), transparent 62%),
-    #0a1526;
-  background-attachment: fixed, fixed, fixed, fixed;
+  background: linear-gradient(160deg, #0C2340 0%, #279989 50%, #E56A54 100%);
+  background-attachment: fixed;
 }
 
 /* ---------- Header ---------- */
@@ -862,6 +860,18 @@ body.competencia-active .baja-badge {
   color: var(--muted);
   font-size: 12.5px;
   text-align: center;
+}
+
+/* El footer y el estado vacío son el único texto que queda directo sobre
+   el fondo (todo lo demás vive dentro de una tarjeta clara) — con el
+   degradado de marca de fondo necesitan su propio tono claro. */
+body.competencia-active .footer,
+body.competencia-active .empty-state {
+  color: rgba(255, 255, 255, .65);
+}
+
+body.competencia-active .footer .link-btn {
+  color: #fff;
 }
 
 .link-btn {

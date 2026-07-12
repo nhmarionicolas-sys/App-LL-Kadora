@@ -16,6 +16,8 @@ const CIUDADES = ['Granada', 'Sevilla', 'Barcelona', 'Zaragoza'];
 
 const COMPETIDOR_COLORS = {
   'xior granada': '#2a9d8f',
+  'livensa fuentenueva': '#307FE2',
+  'livensa living cartuja': '#9c5fd6',
 };
 const FALLBACK_PALETTE = ['#d1495b', '#118ab2', '#ef8354', '#2ec4b6', '#ff6b6b', '#7048e8'];
 
