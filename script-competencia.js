@@ -331,6 +331,7 @@ function escapeHtml(str) {
 // ---------------------------------------------------------------------------
 document.getElementById('searchInputComp').addEventListener('input', renderCards);
 document.getElementById('refreshBtnComp').addEventListener('click', loadData);
+document.getElementById('exportPdfBtnComp').addEventListener('click', () => window.print());
 
 loadData();
 loadPricing();

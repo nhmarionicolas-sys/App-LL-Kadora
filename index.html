@@ -43,7 +43,6 @@
   <section class="week-bar">
     <label for="weekSelect">Semana:</label>
     <select id="weekSelect" class="select"></select>
-    <button id="copyLinkBtn" class="btn-export" type="button">🔗 Copiar enlace</button>
     <button id="exportPdfBtn" class="btn-export" type="button">📄 Exportar PDF</button>
   </section>
 
@@ -84,6 +83,7 @@
       <select id="trendViewSelect" class="select trend-select">
         <option value="total">Total de anuncios activos</option>
         <option value="nuevos">Anuncios nuevos por semana</option>
+        <option value="bajas">Anuncios de baja por semana</option>
         <option value="residencia">Evolución por residencia</option>
         <option value="dia">Anuncios nuevos por día de la semana</option>
       </select>
@@ -129,6 +129,10 @@
 </section>
 
 <section id="viewCompetencia" hidden>
+
+  <section class="week-bar">
+    <button id="exportPdfBtnComp" class="btn-export" type="button">📄 Exportar PDF</button>
+  </section>
 
   <section class="city-tabs" id="cityTabs"></section>
 

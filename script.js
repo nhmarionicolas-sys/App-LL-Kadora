@@ -309,6 +309,23 @@ function buildChartDataset(view) {
     };
   }
 
+  if (view === 'bajas') {
+    const usable = weeks.slice(1);
+    return {
+      mode: 'line',
+      categories: usable.map(w => formatShort(new Date(w))),
+      series: [{
+        name: 'Anuncios de baja',
+        color: 'var(--coral)',
+        values: usable.map(w => {
+          const prevWeek = weeks[weeks.indexOf(w) - 1];
+          const idsActuales = new Set(rawAds.filter(a => weekKey(a.fechaExtraccion) === w).map(a => a.id).filter(Boolean));
+          return rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek && a.id && !idsActuales.has(a.id)).length;
+        }),
+      }],
+    };
+  }
+
   if (view === 'residencia') {
     const residencias = [...new Set(rawAds.map(a => a.residencia))].sort();
     return {
@@ -695,18 +712,6 @@ document.getElementById('bajasOnlyToggle').addEventListener('change', (e) => {
 });
 document.getElementById('refreshBtn').addEventListener('click', loadData);
 document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
-document.getElementById('copyLinkBtn').addEventListener('click', async () => {
-  syncUrlFromState();
-  const btn = document.getElementById('copyLinkBtn');
-  const original = btn.textContent;
-  try {
-    await navigator.clipboard.writeText(location.href);
-    btn.textContent = '✅ Enlace copiado';
-  } catch {
-    btn.textContent = '⚠️ Cópialo de la barra de direcciones';
-  }
-  setTimeout(() => { btn.textContent = original; }, 2000);
-});
 document.getElementById('weekSelect').addEventListener('change', (e) => {
   selectedWeek = e.target.value;
   activeResidencia = 'all';
