@@ -75,6 +75,10 @@
       <span class="orb orb--blue"></span>
       <div><span class="kpi-value" id="kpiAntiguedad">–</span><span class="kpi-label">Antigüedad media de los anuncios</span></div>
     </div>
+    <div class="kpi-card">
+      <span class="orb orb--teal"></span>
+      <div><span class="kpi-value" id="kpiLeadsSemana">–</span><span class="kpi-label">Leads conseguidos esta semana</span></div>
+    </div>
   </section>
 
   <section class="trend-card" id="trendCard" hidden>
@@ -110,6 +114,10 @@
         <span>Solo bajas esta semana</span>
       </label>
       <label class="group-toggle">
+        <input type="checkbox" id="leadsSemanaOnlyToggle">
+        <span>Solo con leads esta semana</span>
+      </label>
+      <label class="group-toggle">
         <input type="checkbox" id="groupToggle">
         <span>Agrupar por texto compartido</span>
       </label>
@@ -117,6 +125,13 @@
         <option value="recent">Más recientes primero</option>
         <option value="old">Más antiguos primero</option>
         <option value="residencia">Por residencia (A-Z)</option>
+        <option value="leads">Más leads primero</option>
+      </select>
+      <select id="leadsFuenteSelect" class="select">
+        <option value="all">Todas las fuentes de leads</option>
+        <option value="evento">Solo evento Lead</option>
+        <option value="gracias">Solo página de gracias</option>
+        <option value="none">Sin leads configurados</option>
       </select>
       <input type="search" id="searchInput" class="search" placeholder="Buscar en el texto del anuncio…">
     </div>

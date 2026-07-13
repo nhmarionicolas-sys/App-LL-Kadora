@@ -79,6 +79,16 @@ async function loadData() {
         fechaInicio: parseDate(item.fecha_inicio),
         url: item.url || null,
         imagen: item.imagen || null,
+        // null = este anuncio no tiene una conversión de leads configurada
+        // en Meta (p. ej. campañas de Alcance) o es de una semana anterior
+        // a que empezáramos a medirlo. Distinto de 0, que sí es un dato real.
+        leadsTotal: (item.leads_total === null || item.leads_total === undefined) ? null : Number(item.leads_total),
+        leadsSemana: (item.leads_semana === null || item.leads_semana === undefined) ? null : Number(item.leads_semana),
+        // 'evento' = evento "Lead" estándar de Meta (dispara al enviar el
+        // formulario). 'gracias' = conversión personalizada que cuenta
+        // visitas a la página de agradecimiento — una señal más indirecta,
+        // no estrictamente comparable a 'evento'.
+        leadsFuente: item.leads_fuente || null,
       }));
 
     const masReciente = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
@@ -131,8 +141,10 @@ function applyStateFromUrl() {
   if (params.get('buscar')) document.getElementById('searchInput').value = params.get('buscar');
   if (params.get('nuevos') === '1') document.getElementById('newOnlyToggle').checked = true;
   if (params.get('bajas') === '1') document.getElementById('bajasOnlyToggle').checked = true;
+  if (params.get('leadsSemana') === '1') document.getElementById('leadsSemanaOnlyToggle').checked = true;
   if (params.get('agrupar') === '1') document.getElementById('groupToggle').checked = true;
   if (params.get('orden')) document.getElementById('sortSelect').value = params.get('orden');
+  if (params.get('fuenteLeads')) document.getElementById('leadsFuenteSelect').value = params.get('fuenteLeads');
 }
 
 function syncUrlFromState() {
@@ -144,10 +156,14 @@ function syncUrlFromState() {
   if (search) params.set('buscar', search);
   if (document.getElementById('newOnlyToggle').checked) params.set('nuevos', '1');
   if (document.getElementById('bajasOnlyToggle').checked) params.set('bajas', '1');
+  if (document.getElementById('leadsSemanaOnlyToggle').checked) params.set('leadsSemana', '1');
   if (document.getElementById('groupToggle').checked) params.set('agrupar', '1');
 
   const sort = document.getElementById('sortSelect').value;
   if (sort && sort !== 'recent') params.set('orden', sort);
+
+  const fuenteLeads = document.getElementById('leadsFuenteSelect').value;
+  if (fuenteLeads && fuenteLeads !== 'all') params.set('fuenteLeads', fuenteLeads);
 
   const qs = params.toString();
   history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
@@ -155,6 +171,13 @@ function syncUrlFromState() {
 
 function contentKey(ad) {
   return normalize(ad.residencia) + '|' + normalize(ad.texto);
+}
+
+// null solo si NINGUNO de los dos anuncios tiene leads configurados (p. ej.
+// ambos son de Alcance); si al menos uno sí, se suman tratando el otro como 0.
+function sumarLeads(a, b) {
+  if (a === null && b === null) return null;
+  return (a || 0) + (b || 0);
 }
 
 // Numera cada anuncio dentro de su residencia (orden estable por fecha de
@@ -271,6 +294,11 @@ function renderKpis() {
   document.getElementById('kpiReciente').textContent = formatDate(masReciente);
   document.getElementById('kpiTop').textContent = top ? `${top[0]} (${top[1]})` : '—';
   document.getElementById('kpiAntiguedad').textContent = antiguedad !== null ? `${antiguedad} días` : '—';
+
+  // Suma de leads de la semana en curso entre todos los anuncios que sí
+  // tienen una conversión de leads configurada (null = no aplica, se ignora).
+  const leadsSemanaTotal = weekAds.reduce((sum, a) => sum + (a.leadsSemana || 0), 0);
+  document.getElementById('kpiLeadsSemana').textContent = leadsSemanaTotal.toLocaleString('es-ES');
 
   const idx = weeks.indexOf(selectedWeek);
   const kpiNuevos = document.getElementById('kpiNuevos');
@@ -568,11 +596,18 @@ function getFilteredAds() {
   const search = normalize(document.getElementById('searchInput').value);
   const newOnly = document.getElementById('newOnlyToggle').checked;
   const bajasOnly = document.getElementById('bajasOnlyToggle').checked;
+  const fuenteLeads = document.getElementById('leadsFuenteSelect').value;
+  const leadsSemanaOnly = document.getElementById('leadsSemanaOnlyToggle').checked;
   let ads = getBaseAds().map(a => ({ ...a, isBaja: bajasOnly })).filter(a => {
     const matchesResidencia = activeResidencia === 'all' || a.residencia === activeResidencia;
     const matchesSearch = !search || normalize(a.texto).includes(search);
     const matchesNew = !newOnly || a.isNew;
-    return matchesResidencia && matchesSearch && matchesNew;
+    // Se filtra ANTES de agrupar: así, si se agrupa por texto compartido,
+    // un grupo nunca mezcla anuncios de distinta fuente de leads con los
+    // que ya se descartaron aquí.
+    const matchesFuente = fuenteLeads === 'all' || (fuenteLeads === 'none' ? a.leadsFuente === null : a.leadsFuente === fuenteLeads);
+    const matchesLeadsSemana = !leadsSemanaOnly || (a.leadsSemana || 0) > 0;
+    return matchesResidencia && matchesSearch && matchesNew && matchesFuente && matchesLeadsSemana;
   });
 
   const grouped = document.getElementById('groupToggle').checked;
@@ -588,6 +623,11 @@ function getFilteredAds() {
         g.urls.push(a.url || null);
         if (a.fechaInicio && (!g.fechaInicio || a.fechaInicio < g.fechaInicio)) g.fechaInicio = a.fechaInicio;
         if (a.fechaExtraccion && (!g.fechaExtraccion || a.fechaExtraccion > g.fechaExtraccion)) g.fechaExtraccion = a.fechaExtraccion;
+        g.leadsTotal = sumarLeads(g.leadsTotal, a.leadsTotal);
+        g.leadsSemana = sumarLeads(g.leadsSemana, a.leadsSemana);
+        // Si el grupo mezcla anuncios con distinta fuente de medición, no
+        // podemos etiquetar el grupo entero con una sola — se omite el tag.
+        if (g.leadsFuente !== a.leadsFuente) g.leadsFuente = null;
       }
     });
     ads = [...groups.values()];
@@ -600,6 +640,8 @@ function getFilteredAds() {
     if (sort === 'recent') return (b.fechaInicio || 0) - (a.fechaInicio || 0);
     if (sort === 'old') return (a.fechaInicio || 0) - (b.fechaInicio || 0);
     if (sort === 'residencia') return a.residencia.localeCompare(b.residencia);
+    // null (sin leads configurados) va siempre al final, no al principio.
+    if (sort === 'leads') return (b.leadsTotal ?? -1) - (a.leadsTotal ?? -1);
     return 0;
   });
 
@@ -628,6 +670,27 @@ function renderSkeletonCards(count = 6) {
   `).join('');
 }
 
+// "null" = este anuncio no tiene una conversión de leads configurada en
+// Meta (p. ej. campañas de Alcance) — en ese caso no se muestra nada, en
+// vez de un "0 leads" engañoso.
+const FUENTE_LABELS = { evento: 'evento Lead', gracias: 'pág. gracias' };
+
+function renderLeadsBadge(ad) {
+  if (ad.leadsTotal === null || ad.leadsTotal === undefined) return '';
+  const semana = ad.leadsSemana ?? 0;
+  const total = ad.leadsTotal;
+  const fuenteLabel = FUENTE_LABELS[ad.leadsFuente] || '';
+  const fuenteHtml = fuenteLabel ? `<span class="leads-stat-source">${fuenteLabel}</span>` : '';
+  const fuenteTitle = fuenteLabel ? ` — medido vía ${fuenteLabel}` : '';
+  return `<span class="leads-stat" title="Leads conseguidos por este anuncio (Meta Ads): ${semana} esta semana, ${total} en total${fuenteTitle}">
+    <span class="leads-stat-label">Leads</span>
+    <span class="leads-stat-value">${semana.toLocaleString('es-ES')}</span><span class="leads-stat-tag">sem.</span>
+    <span class="leads-stat-dot">·</span>
+    <span class="leads-stat-value">${total.toLocaleString('es-ES')}</span><span class="leads-stat-tag">total</span>
+    ${fuenteHtml}
+  </span>`;
+}
+
 function renderCards() {
   const grid = document.getElementById('cardsGrid');
   const empty = document.getElementById('emptyState');
@@ -646,6 +709,7 @@ function renderCards() {
     const adNumber = (ad.count === 1 && ad.numero) ? `<span class="ad-number">Anuncio ${ad.numero}</span>` : '';
     const newBadge = ad.isNew ? `<span class="new-badge">Nuevo</span>` : '';
     const bajaBadge = ad.isBaja ? `<span class="baja-badge">De baja</span>` : '';
+    const leadsBadge = renderLeadsBadge(ad);
     const imagenHtml = ad.imagen ? `<img class="card-image" src="${ad.imagen}" alt="" loading="lazy" onerror="this.remove()">` : '';
 
     const linkSection = ad.count > 1
@@ -662,7 +726,7 @@ function renderCards() {
         <div class="card-top">
           <span class="badge">${PIN_ICON}${ad.residencia}</span>
           ${adNumber}
-          <div class="card-top-right">${newBadge}${bajaBadge}${countBadge}</div>
+          <div class="card-top-right">${leadsBadge}${newBadge}${bajaBadge}${countBadge}</div>
         </div>
         ${imagenHtml}
         <p class="card-text" id="text-${idx}">${escapeHtml(ad.texto)}</p>
@@ -699,6 +763,8 @@ function escapeHtml(str) {
 // ---------------------------------------------------------------------------
 document.getElementById('searchInput').addEventListener('input', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('sortSelect').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
+document.getElementById('leadsFuenteSelect').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
+document.getElementById('leadsSemanaOnlyToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('groupToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('newOnlyToggle').addEventListener('change', (e) => {
   if (e.target.checked) document.getElementById('bajasOnlyToggle').checked = false;
