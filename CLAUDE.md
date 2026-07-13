@@ -30,4 +30,6 @@ No hay build ni dependencias. Para ver cambios en local:
 ```
 cd ~/Desktop/kadora-dashboard && python3 -m http.server 8931
 ```
-y abrir `http://localhost:8931`. Para publicarlos: `git add -A && git commit -m "..." && git push` (Netlify despliega solo).
+y abrir `http://localhost:8931`.
+
+**Publicar en lotes, no cambio a cambio (desde 2026-07-13):** cada `git push` a `main` dispara un deploy de producción en Netlify, y la cuenta de Netlify funciona con un crédito mensual limitado (la cuenta original se quedó sin crédito por publicar demasiado seguido, obligando a migrar de cuenta el 2026-07-13). Por eso: seguir haciendo `git commit` en local con normalidad después de cada cambio probado, pero **no hacer `git push`** hasta acumular varios cambios y que Mario confirme que quiere publicar el lote. `git add -A && git commit -m "..."` tantas veces como haga falta; `git push` solo al final, una vez.
