@@ -25,6 +25,8 @@ let rawAds = [];
 let pricingData = {};
 let activeCiudad = 'Granada';
 let activeCompetidor = 'all';
+let selectedWeek = null;
+let availableWeeks = [];
 
 const DIACRITICS_RE = /[\u0300-\u036f]/g;
 
@@ -55,6 +57,15 @@ function formatMonthYear(value) {
   const d = parseDate(value);
   if (!d) return '';
   return d.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+}
+
+// Misma función que usa script.js de Kadora para su desplegable de semana.
+function weekKey(date) {
+  if (!date) return null;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -123,6 +134,7 @@ async function loadData() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     const items = Array.isArray(json.data) ? json.data : [];
+    const semanas = Array.isArray(json.semanas) ? json.semanas : [];
 
     rawAds = items
       .filter(item => item.texto && String(item.texto).trim())
@@ -135,7 +147,18 @@ async function loadData() {
         url: item.url || null,
       }));
 
-    const masReciente = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
+    // Las semanas disponibles salen de "semanas" (cada pestaña del Sheet,
+    // tenga o no anuncios) y no solo de las fechas de los anuncios de
+    // rawAds -- si no, una semana con 0 anuncios de la competencia no
+    // dejaría ninguna fila en "data" y desaparecería del desplegable,
+    // dejando la web anclada en la última semana que sí tuvo anuncios.
+    const weekSet = new Set(semanas.map(s => weekKey(parseDate(s))).filter(Boolean));
+    rawAds.forEach(a => { const k = weekKey(a.fechaExtraccion); if (k) weekSet.add(k); });
+    availableWeeks = [...weekSet].sort().reverse();
+
+    populateWeekSelect();
+
+    const masReciente = availableWeeks.length ? parseDate(availableWeeks[0]) : null;
     setSyncStatus('ok', masReciente ? `Datos actualizados el ${formatDate(masReciente)}` : 'Sincronizado');
 
     renderCityTabs();
@@ -153,13 +176,24 @@ function setSyncStatus(state, label) {
   text.textContent = label;
 }
 
-// Todavía no acumulamos varias semanas de competencia (a diferencia de
-// Kadora), así que siempre mostramos la extracción más reciente disponible.
-function getLatestExtractionAds() {
-  const latest = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
-  if (!latest) return [];
-  const key = latest.toDateString();
-  return rawAds.filter(a => a.fechaExtraccion && a.fechaExtraccion.toDateString() === key);
+function populateWeekSelect() {
+  const select = document.getElementById('weekSelectComp');
+  if (!select) return;
+  if (!availableWeeks.length) { select.innerHTML = ''; return; }
+
+  if (!selectedWeek || !availableWeeks.includes(selectedWeek)) selectedWeek = availableWeeks[0];
+
+  select.innerHTML = availableWeeks.map((w, idx) => {
+    const label = formatDate(new Date(w)) + (idx === 0 ? ' (más reciente)' : '');
+    return `<option value="${w}" ${w === selectedWeek ? 'selected' : ''}>${label}</option>`;
+  }).join('');
+}
+
+// Anuncios de la semana elegida en el desplegable (puede ser un array
+// vacío si esa semana no tuvo ningún anuncio de la competencia).
+function getSelectedWeekAds() {
+  if (!selectedWeek) return [];
+  return rawAds.filter(a => a.fechaExtraccion && weekKey(a.fechaExtraccion) === selectedWeek);
 }
 
 function renderCityTabs() {
@@ -192,7 +226,7 @@ function renderAll() {
 }
 
 function getCityAds() {
-  return getLatestExtractionAds().filter(a => a.ciudad === activeCiudad);
+  return getSelectedWeekAds().filter(a => a.ciudad === activeCiudad);
 }
 
 function renderKpis() {
@@ -332,6 +366,12 @@ function escapeHtml(str) {
 document.getElementById('searchInputComp').addEventListener('input', renderCards);
 document.getElementById('refreshBtnComp').addEventListener('click', loadData);
 document.getElementById('exportPdfBtnComp').addEventListener('click', () => window.print());
+document.getElementById('weekSelectComp').addEventListener('change', (e) => {
+  selectedWeek = e.target.value;
+  activeCompetidor = 'all';
+  renderCityTabs();
+  renderAll();
+});
 
 loadData();
 loadPricing();
