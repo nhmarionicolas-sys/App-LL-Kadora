@@ -16,6 +16,7 @@ const RESIDENCIA_COLORS = {
   zaragoza: '#9c5fd6',
   madrid: '#c2185b',
   valencia: '#0C2340',
+  portugal: '#457b9d',
 };
 const FALLBACK_PALETTE = ['#d1495b', '#118ab2', '#ef8354', '#2ec4b6', '#ff6b6b', '#7048e8'];
 
