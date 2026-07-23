@@ -84,11 +84,6 @@ async function loadData() {
         // a que empezáramos a medirlo. Distinto de 0, que sí es un dato real.
         leadsTotal: (item.leads_total === null || item.leads_total === undefined) ? null : Number(item.leads_total),
         leadsSemana: (item.leads_semana === null || item.leads_semana === undefined) ? null : Number(item.leads_semana),
-        // 'evento' = evento "Lead" estándar de Meta (dispara al enviar el
-        // formulario). 'gracias' = conversión personalizada que cuenta
-        // visitas a la página de agradecimiento — una señal más indirecta,
-        // no estrictamente comparable a 'evento'.
-        leadsFuente: item.leads_fuente || null,
       }));
 
     const masReciente = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
@@ -144,7 +139,6 @@ function applyStateFromUrl() {
   if (params.get('leadsSemana') === '1') document.getElementById('leadsSemanaOnlyToggle').checked = true;
   if (params.get('agrupar') === '1') document.getElementById('groupToggle').checked = true;
   if (params.get('orden')) document.getElementById('sortSelect').value = params.get('orden');
-  if (params.get('fuenteLeads')) document.getElementById('leadsFuenteSelect').value = params.get('fuenteLeads');
 }
 
 function syncUrlFromState() {
@@ -161,9 +155,6 @@ function syncUrlFromState() {
 
   const sort = document.getElementById('sortSelect').value;
   if (sort && sort !== 'recent') params.set('orden', sort);
-
-  const fuenteLeads = document.getElementById('leadsFuenteSelect').value;
-  if (fuenteLeads && fuenteLeads !== 'all') params.set('fuenteLeads', fuenteLeads);
 
   const qs = params.toString();
   history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
@@ -596,18 +587,13 @@ function getFilteredAds() {
   const search = normalize(document.getElementById('searchInput').value);
   const newOnly = document.getElementById('newOnlyToggle').checked;
   const bajasOnly = document.getElementById('bajasOnlyToggle').checked;
-  const fuenteLeads = document.getElementById('leadsFuenteSelect').value;
   const leadsSemanaOnly = document.getElementById('leadsSemanaOnlyToggle').checked;
   let ads = getBaseAds().map(a => ({ ...a, isBaja: bajasOnly })).filter(a => {
     const matchesResidencia = activeResidencia === 'all' || a.residencia === activeResidencia;
     const matchesSearch = !search || normalize(a.texto).includes(search);
     const matchesNew = !newOnly || a.isNew;
-    // Se filtra ANTES de agrupar: así, si se agrupa por texto compartido,
-    // un grupo nunca mezcla anuncios de distinta fuente de leads con los
-    // que ya se descartaron aquí.
-    const matchesFuente = fuenteLeads === 'all' || (fuenteLeads === 'none' ? a.leadsFuente === null : a.leadsFuente === fuenteLeads);
     const matchesLeadsSemana = !leadsSemanaOnly || (a.leadsSemana || 0) > 0;
-    return matchesResidencia && matchesSearch && matchesNew && matchesFuente && matchesLeadsSemana;
+    return matchesResidencia && matchesSearch && matchesNew && matchesLeadsSemana;
   });
 
   const grouped = document.getElementById('groupToggle').checked;
@@ -625,9 +611,6 @@ function getFilteredAds() {
         if (a.fechaExtraccion && (!g.fechaExtraccion || a.fechaExtraccion > g.fechaExtraccion)) g.fechaExtraccion = a.fechaExtraccion;
         g.leadsTotal = sumarLeads(g.leadsTotal, a.leadsTotal);
         g.leadsSemana = sumarLeads(g.leadsSemana, a.leadsSemana);
-        // Si el grupo mezcla anuncios con distinta fuente de medición, no
-        // podemos etiquetar el grupo entero con una sola — se omite el tag.
-        if (g.leadsFuente !== a.leadsFuente) g.leadsFuente = null;
       }
     });
     ads = [...groups.values()];
@@ -673,21 +656,15 @@ function renderSkeletonCards(count = 6) {
 // "null" = este anuncio no tiene una conversión de leads configurada en
 // Meta (p. ej. campañas de Alcance) — en ese caso no se muestra nada, en
 // vez de un "0 leads" engañoso.
-const FUENTE_LABELS = { evento: 'evento Lead', gracias: 'pág. gracias' };
-
 function renderLeadsBadge(ad) {
   if (ad.leadsTotal === null || ad.leadsTotal === undefined) return '';
   const semana = ad.leadsSemana ?? 0;
   const total = ad.leadsTotal;
-  const fuenteLabel = FUENTE_LABELS[ad.leadsFuente] || '';
-  const fuenteHtml = fuenteLabel ? `<span class="leads-stat-source">${fuenteLabel}</span>` : '';
-  const fuenteTitle = fuenteLabel ? ` — medido vía ${fuenteLabel}` : '';
-  return `<span class="leads-stat" title="Leads conseguidos por este anuncio (Meta Ads): ${semana} esta semana, ${total} en total${fuenteTitle}">
+  return `<span class="leads-stat" title="Leads conseguidos por este anuncio (Meta Ads): ${semana} esta semana, ${total} en total">
     <span class="leads-stat-label">Leads</span>
     <span class="leads-stat-value">${semana.toLocaleString('es-ES')}</span><span class="leads-stat-tag">sem.</span>
     <span class="leads-stat-dot">·</span>
     <span class="leads-stat-value">${total.toLocaleString('es-ES')}</span><span class="leads-stat-tag">total</span>
-    ${fuenteHtml}
   </span>`;
 }
 
@@ -763,7 +740,6 @@ function escapeHtml(str) {
 // ---------------------------------------------------------------------------
 document.getElementById('searchInput').addEventListener('input', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('sortSelect').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
-document.getElementById('leadsFuenteSelect').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('leadsSemanaOnlyToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('groupToggle').addEventListener('change', () => { renderCards(); syncUrlFromState(); });
 document.getElementById('newOnlyToggle').addEventListener('change', (e) => {
