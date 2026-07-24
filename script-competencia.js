@@ -12,7 +12,7 @@ const CONFIG = {
   AUTO_REFRESH_MS: 5 * 60 * 1000,
 };
 
-const CIUDADES = ['Granada', 'Sevilla', 'Barcelona', 'Zaragoza'];
+const CIUDADES = ['Granada', 'Sevilla', 'Barcelona', 'Zaragoza', 'Portugal'];
 
 const COMPETIDOR_COLORS = {
   'xior granada': '#2a9d8f',

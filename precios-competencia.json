@@ -132,6 +132,255 @@
           ]
         }
       ]
+    },
+    {
+      "competidor": "Bravo Students Granada",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        { "tipo": "Individual", "precios": [{ "periodo": null, "valor": 720 }] },
+        { "tipo": "Individual premium", "precios": [{ "periodo": null, "valor": 825 }] },
+        { "tipo": "Individual Plus", "precios": [{ "periodo": null, "valor": 910 }] },
+        { "tipo": "Doble litera", "precios": [{ "periodo": null, "valor": 510 }] },
+        { "tipo": "Doble premium", "precios": [{ "periodo": null, "valor": 580 }] },
+        { "tipo": "Apartamento Twodio", "precios": [{ "periodo": null, "valor": 660 }] },
+        { "tipo": "Triple", "precios": [{ "periodo": null, "valor": 480 }] }
+      ]
+    },
+    {
+      "competidor": "Student Ex Granada",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        {
+          "tipo": "Signature studio (individual)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 650 },
+            { "periodo": "Curso académico", "valor": 650 },
+            { "periodo": "Semestre", "valor": 750 }
+          ]
+        },
+        {
+          "tipo": "Prestige studio (individual)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 750 },
+            { "periodo": "Curso académico", "valor": 750 },
+            { "periodo": "Semestre", "valor": 850 }
+          ]
+        }
+      ]
+    },
+    {
+      "competidor": "Codomo Living Granada",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        { "tipo": "Estudio individual", "precios": [{ "periodo": null, "valor": "645-684" }] },
+        { "tipo": "Estudio doble", "precios": [{ "periodo": null, "valor": 395 }] },
+        {
+          "tipo": "Estudio doble premium",
+          "precios": [
+            { "periodo": "Año completo", "valor": 455 },
+            { "periodo": "Curso académico", "valor": 455 },
+            { "periodo": "Semestre", "valor": 495 }
+          ]
+        },
+        { "tipo": "Estudio doble uso individual", "precios": [{ "periodo": null, "valor": 495 }] },
+        {
+          "tipo": "Estudio premium",
+          "precios": [
+            { "periodo": "Año completo", "valor": 720 },
+            { "periodo": "Curso académico", "valor": 720 },
+            { "periodo": "Semestre", "valor": "675-740" }
+          ]
+        }
+      ]
+    }
+  ],
+  "Sevilla": [
+    {
+      "competidor": "Stephouse",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        {
+          "tipo": "Studio",
+          "precios": [
+            { "periodo": "Año completo", "valor": 880 },
+            { "periodo": "Curso académico", "valor": 880 },
+            { "periodo": "Semestre", "valor": 966 }
+          ]
+        },
+        {
+          "tipo": "Studio Plus",
+          "precios": [
+            { "periodo": "Año completo", "valor": 945 },
+            { "periodo": "Curso académico", "valor": 945 },
+            { "periodo": "Semestre", "valor": 1038 }
+          ]
+        },
+        {
+          "tipo": "3dio (habitación privada en piso compartido de 3)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 695 },
+            { "periodo": "Curso académico", "valor": 695 },
+            { "periodo": "Semestre", "valor": 765 }
+          ]
+        },
+        {
+          "tipo": "3dio Plus",
+          "precios": [
+            { "periodo": "Año completo", "valor": 775 },
+            { "periodo": "Curso académico", "valor": 775 },
+            { "periodo": "Semestre", "valor": 853 }
+          ]
+        }
+      ]
+    },
+    {
+      "competidor": "Livensa Sevilla",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        {
+          "tipo": "Studio con cocina privada standard",
+          "precios": [
+            { "periodo": "Año completo", "valor": 746 },
+            { "periodo": "Curso académico", "valor": 829 },
+            { "periodo": "Semestre", "valor": 953 }
+          ]
+        },
+        {
+          "tipo": "Studio con cocina privada superior",
+          "precios": [
+            { "periodo": "Año completo", "valor": 869 },
+            { "periodo": "Curso académico", "valor": 966 },
+            { "periodo": "Semestre", "valor": 1159 }
+          ]
+        },
+        {
+          "tipo": "Studio con cocina privada premium",
+          "precios": [
+            { "periodo": "Año completo", "valor": 887 },
+            { "periodo": "Curso académico", "valor": 986 },
+            { "periodo": "Semestre", "valor": 1183 }
+          ]
+        }
+      ]
+    },
+    {
+      "competidor": "Yugo Palm Studios",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        { "tipo": "Standard Studio", "precios": [{ "periodo": null, "valor": 936 }] },
+        { "tipo": "Premium Studio", "precios": [{ "periodo": null, "valor": 1029 }] },
+        { "tipo": "Lux Studio", "precios": [{ "periodo": null, "valor": 1260 }] },
+        { "tipo": "Executive Studio", "precios": [{ "periodo": null, "valor": 1260 }] }
+      ]
+    },
+    {
+      "competidor": "Nido Porvenir",
+      "actualizado": "2026-06-01",
+      "habitaciones": [
+        {
+          "tipo": "Standard Room (2-bed)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 668 },
+            { "periodo": "Curso académico", "valor": 706 },
+            { "periodo": "Semestre", "valor": 850 }
+          ]
+        },
+        {
+          "tipo": "Classic Room (2-bed)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 668 },
+            { "periodo": "Curso académico", "valor": 708 },
+            { "periodo": "Semestre", "valor": 931 }
+          ]
+        },
+        {
+          "tipo": "Premium Room (2-bed)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 789 },
+            { "periodo": "Curso académico", "valor": 829 },
+            { "periodo": "Semestre", "valor": 979 }
+          ]
+        },
+        {
+          "tipo": "Classic Room (3-bed)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 831 },
+            { "periodo": "Curso académico", "valor": 871 },
+            { "periodo": "Semestre", "valor": 766 }
+          ]
+        },
+        {
+          "tipo": "Premium Room (3-bed)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 879 },
+            { "periodo": "Curso académico", "valor": 919 },
+            { "periodo": "Semestre", "valor": 768 }
+          ]
+        },
+        {
+          "tipo": "Classic Room (4-bed)",
+          "precios": [
+            { "periodo": "Año completo", "valor": 750 },
+            { "periodo": "Curso académico", "valor": 790 },
+            { "periodo": "Semestre", "valor": 889 }
+          ]
+        },
+        {
+          "tipo": "Classic Studio",
+          "precios": [
+            { "periodo": "Año completo", "valor": 1088 },
+            { "periodo": "Curso académico", "valor": 1128 },
+            { "periodo": "Semestre", "valor": 1188 }
+          ]
+        },
+        {
+          "tipo": "Premium Studio",
+          "precios": [
+            { "periodo": "Año completo", "valor": 1173 },
+            { "periodo": "Curso académico", "valor": 1213 },
+            { "periodo": "Semestre", "valor": 1273 }
+          ]
+        }
+      ]
+    }
+  ],
+  "Zaragoza": [
+    {
+      "competidor": "Xior Zaragoza",
+      "actualizado": "2026-05-01",
+      "habitaciones": [
+        { "tipo": "Doble", "precios": [{ "periodo": null, "valor": 594 }] },
+        { "tipo": "Twodio (ind. en cluster)", "precios": [{ "periodo": null, "valor": 780 }] },
+        { "tipo": "Premium ind", "precios": [{ "periodo": null, "valor": 880 }] },
+        { "tipo": "Super Premium ind", "precios": [{ "periodo": null, "valor": 915 }] },
+        { "tipo": "Apartamento", "precios": [{ "periodo": null, "valor": 965 }] }
+      ]
+    },
+    {
+      "competidor": "Odalys Zaragoza",
+      "actualizado": "2026-05-01",
+      "habitaciones": [
+        { "tipo": "Estudio", "precios": [{ "periodo": null, "valor": 740 }] },
+        { "tipo": "Estudio superior (más grande)", "precios": [{ "periodo": null, "valor": 840 }] }
+      ]
+    },
+    {
+      "competidor": "Bravo Zaragoza",
+      "actualizado": "2026-05-01",
+      "habitaciones": [
+        { "tipo": "Hab individual", "precios": [{ "periodo": null, "valor": 620 }] },
+        { "tipo": "Hab doble", "precios": [{ "periodo": null, "valor": 495 }] }
+      ]
+    },
+    {
+      "competidor": "Goya - Mi Casa Inn",
+      "actualizado": "2026-05-01",
+      "habitaciones": [
+        { "tipo": "Confort", "precios": [{ "periodo": null, "valor": 595 }] },
+        { "tipo": "Deluxe", "precios": [{ "periodo": null, "valor": 680 }] },
+        { "tipo": "Deluxe Plus", "precios": [{ "periodo": null, "valor": 700 }] },
+        { "tipo": "Suite", "precios": [{ "periodo": null, "valor": 770 }] }
+      ]
     }
   ]
 }
