@@ -382,5 +382,168 @@
         { "tipo": "Suite", "precios": [{ "periodo": null, "valor": 770 }] }
       ]
     }
+  ],
+  "Barcelona": [
+    {
+      "competidor": "Aparto",
+      "residencia": "Moura",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "ENSUITE", "precios": [{ "periodo": "Año completo", "valor": 1115 }, { "periodo": "Curso académico", "valor": 1115 }, { "periodo": "Semestre", "valor": 1215 }] },
+        { "tipo": "ENSUITE Premium", "precios": [{ "periodo": "Año completo", "valor": 1165 }, { "periodo": "Curso académico", "valor": 1165 }, { "periodo": "Semestre", "valor": 1265 }] },
+        { "tipo": "ENSUITE XL", "precios": [{ "periodo": "Año completo", "valor": 1135 }, { "periodo": "Curso académico", "valor": 1135 }, { "periodo": "Semestre", "valor": 1235 }] },
+        { "tipo": "ENSUITE Premium XL", "precios": [{ "periodo": "Curso académico", "valor": 1459 }] },
+        { "tipo": "Estudio", "precios": [{ "periodo": "Año completo", "valor": 1449 }, { "periodo": "Curso académico", "valor": 1449 }, { "periodo": "Semestre", "valor": 1549 }] },
+        { "tipo": "Estudio Premium", "precios": [{ "periodo": "Año completo", "valor": 1529 }, { "periodo": "Curso académico", "valor": 1529 }, { "periodo": "Semestre", "valor": 1629 }] },
+        { "tipo": "Studio XL", "precios": [{ "periodo": "Año completo", "valor": 1650 }, { "periodo": "Curso académico", "valor": 1621 }, { "periodo": "Semestre", "valor": 1579 }] },
+        { "tipo": "Studio Premium XL", "precios": [{ "periodo": "Año completo", "valor": 1629 }, { "periodo": "Curso académico", "valor": 1629 }, { "periodo": "Semestre", "valor": 1729 }] },
+        { "tipo": "Studio Superior", "precios": [{ "periodo": "Año completo", "valor": 1479 }, { "periodo": "Curso académico", "valor": 1621 }] },
+        { "tipo": "Studio Superior XL", "precios": [{ "periodo": "Año completo", "valor": 1650 }, { "periodo": "Curso académico", "valor": 1621 }] }
+      ]
+    },
+    {
+      "competidor": "Aparto",
+      "residencia": "Pallars",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "ENSUITE", "precios": [{ "periodo": "Año completo", "valor": 1115 }, { "periodo": "Curso académico", "valor": 1115 }, { "periodo": "Semestre", "valor": 1215 }] },
+        { "tipo": "ENSUITE Premium", "precios": [{ "periodo": "Año completo", "valor": 1165 }, { "periodo": "Curso académico", "valor": 1165 }, { "periodo": "Semestre", "valor": 1265 }] },
+        { "tipo": "ENSUITE XL", "precios": [{ "periodo": "Año completo", "valor": 1135 }, { "periodo": "Semestre", "valor": 1235 }] },
+        { "tipo": "ENSUITE Premium XL", "precios": [{ "periodo": "Curso académico", "valor": 1135 }] },
+        { "tipo": "Estudio", "precios": [{ "periodo": "Año completo", "valor": 1449 }, { "periodo": "Curso académico", "valor": 1449 }, { "periodo": "Semestre", "valor": 1549 }] },
+        { "tipo": "Estudio Premium", "precios": [{ "periodo": "Año completo", "valor": 1529 }, { "periodo": "Curso académico", "valor": 1619 }, { "periodo": "Semestre", "valor": 1629 }] },
+        { "tipo": "Studio XL", "precios": [{ "periodo": "Año completo", "valor": 1650 }, { "periodo": "Semestre", "valor": 1579 }] },
+        { "tipo": "Studio Premium XL", "precios": [{ "periodo": "Año completo", "valor": 1629 }, { "periodo": "Semestre", "valor": 1729 }] },
+        { "tipo": "Studio Superior", "precios": [{ "periodo": "Año completo", "valor": 1479 }, { "periodo": "Curso académico", "valor": 1519 }] },
+        { "tipo": "Studio Superior XL", "precios": [{ "periodo": "Año completo", "valor": 1650 }] }
+      ]
+    },
+    {
+      "competidor": "Aparto",
+      "residencia": "Diagonal",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Ensuite (cluster, baño privado)", "precios": [{ "periodo": "Curso académico", "valor": 1310 }] },
+        { "tipo": "Studio (sin cocina)", "precios": [{ "periodo": "Curso académico", "valor": 1510 }] },
+        { "tipo": "Studio Sky (con cocina)", "precios": [{ "periodo": "Curso académico", "valor": 1650 }] }
+      ]
+    },
+    {
+      "competidor": "Vita Student",
+      "residencia": "Poblenou",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Accessible Room", "precios": [{ "periodo": "Año completo", "valor": 1598 }, { "periodo": "Curso académico", "valor": 1598 }] },
+        { "tipo": "Classic Plus", "precios": [{ "periodo": "Año completo", "valor": 1846 }, { "periodo": "Curso académico", "valor": 1846 }] },
+        { "tipo": "Premium Plus", "precios": [{ "periodo": "Año completo", "valor": 1960 }, { "periodo": "Curso académico", "valor": 1960 }] },
+        { "tipo": "Premium (10ma planta)", "precios": [{ "periodo": "Año completo", "valor": 2024 }, { "periodo": "Curso académico", "valor": 2024 }] },
+        { "tipo": "Deluxe", "precios": [{ "periodo": "Año completo", "valor": 2164 }, { "periodo": "Curso académico", "valor": 2164 }] },
+        { "tipo": "Ultimate Vita", "precios": [{ "periodo": "Año completo", "valor": 2414 }, { "periodo": "Curso académico", "valor": 2414 }] }
+      ]
+    },
+    {
+      "competidor": "Vita Student",
+      "residencia": "Pedralbes",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "classic plus", "precios": [{ "periodo": "Año completo", "valor": 2002 }, { "periodo": "Curso académico", "valor": 2002 }] },
+        { "tipo": "Lite", "precios": [{ "periodo": "Año completo", "valor": 1642 }, { "periodo": "Curso académico", "valor": 1642 }] },
+        { "tipo": "Lite Plus", "precios": [{ "periodo": "Año completo", "valor": 1764 }, { "periodo": "Curso académico", "valor": 1764 }] },
+        { "tipo": "Accessible Room (estudio con cocina y terraza)", "precios": [{ "periodo": "Año completo", "valor": 1995 }, { "periodo": "Curso académico", "valor": 1995 }] }
+      ]
+    },
+    {
+      "competidor": "Yugo",
+      "residencia": "Marina (Beyoo)",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "STANDARD ENSUITE", "precios": [{ "periodo": "Año completo", "valor": 1115 }, { "periodo": "Curso académico", "valor": 1115 }, { "periodo": "Semestre", "valor": 1115 }] },
+        { "tipo": "STANDARD +", "precios": [{ "periodo": "Curso académico", "valor": 1199 }] },
+        { "tipo": "STUDIO", "precios": [{ "periodo": "Año completo", "valor": 1349 }, { "periodo": "Curso académico", "valor": 1349 }, { "periodo": "Semestre", "valor": 1349 }] },
+        { "tipo": "EXECUTIVE STUDIO", "precios": [{ "periodo": "Año completo", "valor": 1439 }, { "periodo": "Curso académico", "valor": 1439 }, { "periodo": "Semestre", "valor": 1439 }] }
+      ]
+    },
+    {
+      "competidor": "Yugo",
+      "residencia": "Diagonal (Aleu)",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Estudio individual", "precios": [{ "periodo": "Curso académico", "valor": 1414 }] },
+        { "tipo": "individual con balcon", "precios": [{ "periodo": "Curso académico", "valor": 1504 }] },
+        { "tipo": "individual con cocina", "precios": [{ "periodo": "Curso académico", "valor": 1221 }] },
+        { "tipo": "Estudio Premium con cocina", "precios": [{ "periodo": "Curso académico", "valor": 2335 }] }
+      ]
+    },
+    {
+      "competidor": "Yugo",
+      "residencia": "Garbí",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Individual Basica", "precios": [{ "periodo": "Curso académico", "valor": 1428 }] },
+        { "tipo": "Individual", "precios": [{ "periodo": "Curso académico", "valor": 1462 }] },
+        { "tipo": "Individual Superior", "precios": [{ "periodo": "Curso académico", "valor": 1540 }, { "periodo": "Semestre", "valor": 1720 }] }
+      ]
+    },
+    {
+      "competidor": "Xior Barcelona",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Cama - Estudio doble", "precios": [{ "periodo": "Curso académico", "valor": 700 }, { "periodo": "Semestre", "valor": 740 }] },
+        { "tipo": "Cama - Estudio doble superior", "precios": [{ "periodo": "Curso académico", "valor": 745 }, { "periodo": "Semestre", "valor": 795 }] },
+        { "tipo": "Estudio individual", "precios": [{ "periodo": "Curso académico", "valor": 980 }, { "periodo": "Semestre", "valor": 1145 }] },
+        { "tipo": "Estudio individual - Vista mar", "precios": [{ "periodo": "Curso académico", "valor": 1095 }, { "periodo": "Semestre", "valor": 1195 }] },
+        { "tipo": "Apartamento", "precios": [{ "periodo": "Curso académico", "valor": 1195 }] }
+      ]
+    },
+    {
+      "competidor": "Livensa Marina",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "STANDARD", "precios": [{ "periodo": "Año completo", "valor": 1040 }, { "periodo": "Curso académico", "valor": 1156 }, { "periodo": "Semestre", "valor": 1329 }] },
+        { "tipo": "STUDIO SUPERIOR", "precios": [{ "periodo": "Año completo", "valor": 1196 }, { "periodo": "Curso académico", "valor": 1329 }, { "periodo": "Semestre", "valor": 1528 }] },
+        { "tipo": "STUDIO PREMIUM", "precios": [{ "periodo": "Curso académico", "valor": 1223 }, { "periodo": "Mes", "valor": 1767 }] }
+      ]
+    },
+    {
+      "competidor": "KLEY",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "KOCOON (estudio)", "precios": [{ "periodo": "Año completo", "valor": 965 }, { "periodo": "Curso académico", "valor": 1035 }, { "periodo": "Semestre", "valor": 1097 }] },
+        { "tipo": "KOCOON L", "precios": [{ "periodo": "Año completo", "valor": 1380 }, { "periodo": "Curso académico", "valor": 1480 }, { "periodo": "Semestre", "valor": 1569 }] },
+        { "tipo": "KASA (habitacion cluster)", "precios": [{ "periodo": "Año completo", "valor": 920 }, { "periodo": "Curso académico", "valor": 989 }, { "periodo": "Semestre", "valor": 1048 }] }
+      ]
+    },
+    {
+      "competidor": "Mi Campus Mina",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Habitacion cluster (max 4pax)", "precios": [{ "periodo": "Curso académico", "valor": 943.95 }, { "periodo": "Semestre", "valor": 1010.03 }, { "periodo": "Mes", "valor": 1028.91 }] },
+        { "tipo": "Estudio ind economica", "precios": [{ "periodo": "Curso académico", "valor": 960.75 }, { "periodo": "Semestre", "valor": 1028 }, { "periodo": "Mes", "valor": 1047.22 }] },
+        { "tipo": "Estudio individual", "precios": [{ "periodo": "Curso académico", "valor": 1048.95 }, { "periodo": "Semestre", "valor": 1122.38 }, { "periodo": "Mes", "valor": 1143.36 }] },
+        { "tipo": "Estudio ind vista mar", "precios": [{ "periodo": "Curso académico", "valor": 1218 }, { "periodo": "Semestre", "valor": 1303.26 }, { "periodo": "Mes", "valor": 1327.62 }] }
+      ]
+    },
+    {
+      "competidor": "RESA",
+      "residencia": "Torre Girona",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "ESTUDIO DOBLE SUPERIOR CON COCINA", "precios": [{ "periodo": "Curso académico", "valor": 723 }] },
+        { "tipo": "ESTUDIO INDIVIDUAL CON COCINA", "precios": [{ "periodo": "Curso académico", "valor": 807.5 }] },
+        { "tipo": "ESTUDIO INDIVIDUAL SUPERIOR", "precios": [{ "periodo": "Curso académico", "valor": 1192.5 }] }
+      ]
+    },
+    {
+      "competidor": "RESA",
+      "residencia": "Diagonal",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "HABITACIÓN DOBLE", "precios": [{ "periodo": "Curso académico", "valor": 1215 }] },
+        { "tipo": "HABITACIÓN DOBLE GRANDE ADAPTADA", "precios": [{ "periodo": "Curso académico", "valor": 1338 }] },
+        { "tipo": "HABITACIÓN INDIVIDUAL CON BAÑO COMPARTIDO", "precios": [{ "periodo": "Curso académico", "valor": 1374 }] },
+        { "tipo": "HABITACIÓN INDIVIDUAL", "precios": [{ "periodo": "Curso académico", "valor": 1470 }] },
+        { "tipo": "HABITACIÓN INDIVIDUAL GRANDE", "precios": [{ "periodo": "Curso académico", "valor": 1620 }] }
+      ]
+    }
   ]
 }

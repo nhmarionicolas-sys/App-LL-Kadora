@@ -107,7 +107,7 @@ function renderPricing() {
   container.innerHTML = entries.map(comp => `
     <article class="pricing-card" style="--accent:${competidorColor(comp.competidor)}">
       <div class="pricing-head">
-        <h3>💰 Tarifas · ${escapeHtml(comp.competidor)}</h3>
+        <h3>💰 Tarifas · ${escapeHtml(comp.competidor)}${comp.residencia ? ' — ' + escapeHtml(comp.residencia) : ''}</h3>
         <span class="pricing-updated">Actualizado ${formatMonthYear(comp.actualizado)}</span>
       </div>
       ${comp.habitaciones.map(h => `
