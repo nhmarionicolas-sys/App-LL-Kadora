@@ -545,5 +545,166 @@
         { "tipo": "HABITACIÓN INDIVIDUAL GRANDE", "precios": [{ "periodo": "Curso académico", "valor": 1620 }] }
       ]
     }
+  ],
+  "Portugal": [
+    {
+      "competidor": "MiCampus",
+      "residencia": "Tower",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Classic studio", "precios": [{ "periodo": "Año completo", "valor": 676 }, { "periodo": "Curso académico", "valor": 698.4 }, { "periodo": "Semestre", "valor": 698 }, { "periodo": "Mes", "valor": 799 }] },
+        { "tipo": "Deluxe studio", "precios": [{ "periodo": "Año completo", "valor": 725 }, { "periodo": "Curso académico", "valor": 784.8 }, { "periodo": "Semestre", "valor": 788 }, { "periodo": "Mes", "valor": 935 }] },
+        { "tipo": "Premium studio", "precios": [{ "periodo": "Año completo", "valor": 911 }, { "periodo": "Curso académico", "valor": 972.9 }, { "periodo": "Semestre", "valor": 973 }, { "periodo": "Mes", "valor": 1150 }] },
+        { "tipo": "Premium studio (2 pessoas)", "precios": [{ "periodo": "Año completo", "valor": 999 }, { "periodo": "Curso académico", "valor": 1118.7 }, { "periodo": "Semestre", "valor": 1118 }, { "periodo": "Mes", "valor": 1252 }] },
+        { "tipo": "Twin", "precios": [{ "periodo": "Año completo", "valor": 497 }, { "periodo": "Curso académico", "valor": 554.4 }, { "periodo": "Semestre", "valor": 554 }, { "periodo": "Mes", "valor": 609 }] }
+      ]
+    },
+    {
+      "competidor": "MiCampus",
+      "residencia": "Asprela",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Classic", "precios": [{ "periodo": "Año completo", "valor": 688 }, { "periodo": "Curso académico", "valor": 734.4 }, { "periodo": "Semestre", "valor": 734 }, { "periodo": "Mes", "valor": 856 }] },
+        { "tipo": "Classic plus", "precios": [{ "periodo": "Año completo", "valor": 735 }, { "periodo": "Curso académico", "valor": 789.3 }, { "periodo": "Semestre", "valor": 790 }, { "periodo": "Mes", "valor": 915 }] },
+        { "tipo": "Balcony", "precios": [{ "periodo": "Año completo", "valor": 751 }, { "periodo": "Curso académico", "valor": 808.2 }, { "periodo": "Semestre", "valor": 808 }, { "periodo": "Mes", "valor": 954 }] },
+        { "tipo": "Deluxe", "precios": [{ "periodo": "Año completo", "valor": 811 }, { "periodo": "Curso académico", "valor": 868.5 }, { "periodo": "Semestre", "valor": 869 }, { "periodo": "Mes", "valor": 997 }] }
+      ]
+    },
+    {
+      "competidor": "MiCampus",
+      "residencia": "Tower (Colife)",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Classic studio", "precios": [{ "periodo": null, "valor": 799 }] },
+        { "tipo": "Deluxe Studio", "precios": [{ "periodo": null, "valor": 935 }] },
+        { "tipo": "Premium Studio", "precios": [{ "periodo": null, "valor": 1150 }] },
+        { "tipo": "Premium studio 2 pessoas", "precios": [{ "periodo": null, "valor": 1252 }] }
+      ]
+    },
+    {
+      "competidor": "Livensa Living Portugal",
+      "residencia": "Porto Campus",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Single standard", "precios": [{ "periodo": "Año completo", "valor": 674 }, { "periodo": "Curso académico", "valor": 749 }, { "periodo": "Semestre", "valor": 861 }, { "periodo": "Mes", "valor": 899 }] },
+        { "tipo": "Single superior", "precios": [{ "periodo": "Año completo", "valor": 710 }, { "periodo": "Curso académico", "valor": 789 }, { "periodo": "Semestre", "valor": 907 }, { "periodo": "Mes", "valor": 947 }] },
+        { "tipo": "Single Premium", "precios": [{ "periodo": "Año completo", "valor": 773 }, { "periodo": "Curso académico", "valor": 859 }, { "periodo": "Semestre", "valor": 988 }, { "periodo": "Mes", "valor": 1031 }] },
+        { "tipo": "Single standard c/terraço", "precios": [{ "periodo": "Año completo", "valor": 683 }, { "periodo": "Curso académico", "valor": 759 }, { "periodo": "Semestre", "valor": 873 }, { "periodo": "Mes", "valor": 911 }] },
+        { "tipo": "Duplo standard", "precios": [{ "periodo": "Año completo", "valor": 449 }, { "periodo": "Curso académico", "valor": 499 }, { "periodo": "Semestre", "valor": 574 }, { "periodo": "Mes", "valor": 599 }] },
+        { "tipo": "Duplo superior", "precios": [{ "periodo": "Año completo", "valor": 467 }, { "periodo": "Curso académico", "valor": 519 }, { "periodo": "Semestre", "valor": 597 }, { "periodo": "Mes", "valor": 623 }] }
+      ]
+    },
+    {
+      "competidor": "Livensa Living Portugal",
+      "residencia": "Boavista",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Single standard", "precios": [{ "periodo": "Año completo", "valor": 739 }, { "periodo": "Curso académico", "valor": 821 }, { "periodo": "Semestre", "valor": 944 }, { "periodo": "Mes", "valor": 985 }] },
+        { "tipo": "Single superior", "precios": [{ "periodo": "Año completo", "valor": 776 }, { "periodo": "Curso académico", "valor": 862 }, { "periodo": "Semestre", "valor": 991 }, { "periodo": "Mes", "valor": 1034 }] },
+        { "tipo": "Single superior accessible", "precios": [{ "periodo": "Año completo", "valor": 776 }, { "periodo": "Curso académico", "valor": 862 }, { "periodo": "Semestre", "valor": 991 }, { "periodo": "Mes", "valor": 1034 }] },
+        { "tipo": "Duplo standard", "precios": [{ "periodo": "Año completo", "valor": 503 }, { "periodo": "Curso académico", "valor": 559 }, { "periodo": "Semestre", "valor": 643 }, { "periodo": "Mes", "valor": 671 }] }
+      ]
+    },
+    {
+      "competidor": "AMRO",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Estúdio Duplo Standard", "precios": [{ "periodo": "Año completo", "valor": 545 }, { "periodo": "Curso académico", "valor": 568 }] },
+        { "tipo": "Estúdio Duplo Standard Com Varanda", "precios": [{ "periodo": "Año completo", "valor": 602 }, { "periodo": "Curso académico", "valor": 626 }] },
+        { "tipo": "Estúdio Duplo Superior", "precios": [{ "periodo": "Año completo", "valor": 585 }, { "periodo": "Curso académico", "valor": 620 }] },
+        { "tipo": "Estúdio Standard", "precios": [{ "periodo": "Año completo", "valor": 735 }, { "periodo": "Curso académico", "valor": 847 }] },
+        { "tipo": "Estúdio Standard Com Varanda", "precios": [{ "periodo": "Año completo", "valor": 865 }, { "periodo": "Curso académico", "valor": 901 }] },
+        { "tipo": "Estúdio Superior", "precios": [{ "periodo": "Año completo", "valor": 747 }, { "periodo": "Curso académico", "valor": 858 }] },
+        { "tipo": "Estúdio Premium", "precios": [{ "periodo": "Año completo", "valor": 862 }, { "periodo": "Curso académico", "valor": 909 }] },
+        { "tipo": "Estúdio Premium Com Varanda", "precios": [{ "periodo": "Curso académico", "valor": 972 }] },
+        { "tipo": "Twodio Standard Com Banho Partilhada", "precios": [{ "periodo": "Año completo", "valor": 676 }, { "periodo": "Curso académico", "valor": 710 }, { "periodo": "Semestre", "valor": 757 }] },
+        { "tipo": "Twodio Standard", "precios": [{ "periodo": "Curso académico", "valor": 798 }, { "periodo": "Semestre", "valor": 835 }] },
+        { "tipo": "Twodio Standard Com Varanda", "precios": [{ "periodo": "Semestre", "valor": 857 }] },
+        { "tipo": "Twodio Superior", "precios": [{ "periodo": "Año completo", "valor": 792 }, { "periodo": "Curso académico", "valor": 826 }, { "periodo": "Semestre", "valor": 886 }] },
+        { "tipo": "Twodio Premium", "precios": [{ "periodo": "Año completo", "valor": 816 }, { "periodo": "Curso académico", "valor": 838 }] }
+      ]
+    },
+    {
+      "competidor": "Xior Portugal",
+      "residencia": "Asprela",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Good Suite", "precios": [{ "periodo": null, "valor": 600 }] },
+        { "tipo": "Super Suite", "precios": [{ "periodo": null, "valor": 620 }] },
+        { "tipo": "Twodio", "precios": [{ "periodo": null, "valor": 610 }] },
+        { "tipo": "Good Studio", "precios": [{ "periodo": null, "valor": 735 }] },
+        { "tipo": "Great Studio", "precios": [{ "periodo": null, "valor": 820 }] },
+        { "tipo": "Boss Studio", "precios": [{ "periodo": null, "valor": 935 }] },
+        { "tipo": "Super Studio", "precios": [{ "periodo": null, "valor": 860 }] }
+      ]
+    },
+    {
+      "competidor": "Xior Portugal",
+      "residencia": "Boavista",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Good Suite", "precios": [{ "periodo": null, "valor": 595 }] },
+        { "tipo": "Super Suite", "precios": [{ "periodo": null, "valor": 625 }] },
+        { "tipo": "Good Studio", "precios": [{ "periodo": null, "valor": 750 }] },
+        { "tipo": "Boss Suite", "precios": [{ "periodo": null, "valor": 700 }] },
+        { "tipo": "Super Studio", "precios": [{ "periodo": null, "valor": 795 }] },
+        { "tipo": "Boss Studio", "precios": [{ "periodo": null, "valor": 895 }] }
+      ]
+    },
+    {
+      "competidor": "Nido Portugal",
+      "residencia": "Asprela",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Standard studio", "precios": [{ "periodo": "Año completo", "valor": 643 }, { "periodo": "Curso académico", "valor": 683 }, { "periodo": "Semestre", "valor": 743 }] },
+        { "tipo": "Classico studio", "precios": [{ "periodo": "Año completo", "valor": 657 }, { "periodo": "Curso académico", "valor": 697 }, { "periodo": "Semestre", "valor": 757 }] },
+        { "tipo": "Classico studio plus", "precios": [{ "periodo": "Año completo", "valor": 677 }, { "periodo": "Curso académico", "valor": 717 }, { "periodo": "Semestre", "valor": 777 }] },
+        { "tipo": "Premium studio", "precios": [{ "periodo": "Año completo", "valor": 696 }, { "periodo": "Curso académico", "valor": 736 }, { "periodo": "Semestre", "valor": 796 }] },
+        { "tipo": "Deluxe studio", "precios": [{ "periodo": "Año completo", "valor": 715 }, { "periodo": "Curso académico", "valor": 755 }, { "periodo": "Semestre", "valor": 815 }] }
+      ]
+    },
+    {
+      "competidor": "Nido Portugal",
+      "residencia": "Genérico (Colife)",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Standard Studio", "precios": [{ "periodo": null, "valor": 725 }] },
+        { "tipo": "Classic Studio", "precios": [{ "periodo": null, "valor": 735 }] },
+        { "tipo": "Premium Studio", "precios": [{ "periodo": null, "valor": 775 }] },
+        { "tipo": "Deluxe Studio", "precios": [{ "periodo": null, "valor": 779 }] }
+      ]
+    },
+    {
+      "competidor": "Odalys Portugal",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Single standard", "precios": [{ "periodo": "Año completo", "valor": 645 }, { "periodo": "Curso académico", "valor": 645 }, { "periodo": "Semestre", "valor": 695 }, { "periodo": "Mes", "valor": 800 }] },
+        { "tipo": "Single standard plus", "precios": [{ "periodo": "Año completo", "valor": 690 }, { "periodo": "Curso académico", "valor": 690 }, { "periodo": "Semestre", "valor": 740 }, { "periodo": "Mes", "valor": 845 }] },
+        { "tipo": "Single master", "precios": [{ "periodo": "Año completo", "valor": 690 }, { "periodo": "Curso académico", "valor": 690 }, { "periodo": "Semestre", "valor": 745 }, { "periodo": "Mes", "valor": 855 }] },
+        { "tipo": "Single master plus", "precios": [{ "periodo": "Año completo", "valor": 715 }, { "periodo": "Curso académico", "valor": 715 }, { "periodo": "Semestre", "valor": 775 }, { "periodo": "Mes", "valor": 885 }] },
+        { "tipo": "Single deluxe", "precios": [{ "periodo": "Año completo", "valor": 710 }, { "periodo": "Curso académico", "valor": 710 }, { "periodo": "Semestre", "valor": 775 }, { "periodo": "Mes", "valor": 890 }] },
+        { "tipo": "Single deluxe plus", "precios": [{ "periodo": "Año completo", "valor": 735 }, { "periodo": "Curso académico", "valor": 735 }, { "periodo": "Semestre", "valor": 800 }, { "periodo": "Mes", "valor": 915 }] },
+        { "tipo": "Super deluxe superior", "precios": [{ "periodo": "Año completo", "valor": 780 }, { "periodo": "Curso académico", "valor": 780 }, { "periodo": "Semestre", "valor": 850 }, { "periodo": "Mes", "valor": 970 }] },
+        { "tipo": "Super rooftop", "precios": [{ "periodo": "Año completo", "valor": 800 }, { "periodo": "Curso académico", "valor": 800 }, { "periodo": "Semestre", "valor": 875 }, { "periodo": "Mes", "valor": 1005 }] },
+        { "tipo": "Super deluxe superior (double occupancy)", "precios": [{ "periodo": "Año completo", "valor": 975 }, { "periodo": "Curso académico", "valor": 975 }, { "periodo": "Semestre", "valor": 1065 }, { "periodo": "Mes", "valor": 1215 }] },
+        { "tipo": "Super rooftop (double occupancy)", "precios": [{ "periodo": "Año completo", "valor": 1000 }, { "periodo": "Curso académico", "valor": 1000 }, { "periodo": "Semestre", "valor": 1100 }, { "periodo": "Mes", "valor": 1255 }] }
+      ]
+    },
+    {
+      "competidor": "SocialHub",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Executive Studio", "precios": [{ "periodo": null, "valor": 3876.5 }] },
+        { "tipo": "Deluxe Studio", "precios": [{ "periodo": null, "valor": 4263.9 }] }
+      ]
+    },
+    {
+      "competidor": "Gabba Coliving",
+      "actualizado": "2026-07-01",
+      "habitaciones": [
+        { "tipo": "Quarto individual", "precios": [{ "periodo": null, "valor": 500 }] },
+        { "tipo": "Apartamento T1 rés de chão sem janelas", "precios": [{ "periodo": null, "valor": 750 }] }
+      ]
+    }
   ]
 }
