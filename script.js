@@ -347,7 +347,12 @@ function buildChartDataset(view) {
   }
 
   if (view === 'residencia') {
-    const residencias = [...new Set(rawAds.map(a => a.residencia))].sort();
+    // "General" es el cajón de ads sin residencia reconocida (ver renderChips),
+    // no una ciudad real — no debe ensuciar el gráfico de evolución por ciudad
+    // aunque haya aparecido en semanas antiguas.
+    const residencias = [...new Set(rawAds.map(a => a.residencia))]
+      .filter(res => normalize(res) !== 'general')
+      .sort();
     return {
       mode: 'multiline',
       categories,
