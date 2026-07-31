@@ -25,6 +25,7 @@ const PIN_ICON = `<svg class="badge-icon" width="10" height="10" viewBox="0 0 24
 let rawAds = [];
 let selectedWeek = null;
 let activeResidencia = 'all';
+let activeCampania = 'all';
 
 function normalize(str) {
   return (str || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
@@ -84,6 +85,7 @@ async function loadData() {
         // a que empezáramos a medirlo. Distinto de 0, que sí es un dato real.
         leadsTotal: (item.leads_total === null || item.leads_total === undefined) ? null : Number(item.leads_total),
         leadsSemana: (item.leads_semana === null || item.leads_semana === undefined) ? null : Number(item.leads_semana),
+        campania: item.campania || null,
       }));
 
     const masReciente = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
@@ -133,6 +135,7 @@ function applyStateFromUrl() {
   const params = new URLSearchParams(location.search);
   if (params.get('semana')) selectedWeek = params.get('semana');
   if (params.get('residencia')) activeResidencia = params.get('residencia');
+  if (params.get('campania')) activeCampania = params.get('campania');
   if (params.get('buscar')) document.getElementById('searchInput').value = params.get('buscar');
   if (params.get('nuevos') === '1') document.getElementById('newOnlyToggle').checked = true;
   if (params.get('bajas') === '1') document.getElementById('bajasOnlyToggle').checked = true;
@@ -145,6 +148,7 @@ function syncUrlFromState() {
   const params = new URLSearchParams();
   if (selectedWeek) params.set('semana', selectedWeek);
   if (activeResidencia !== 'all') params.set('residencia', activeResidencia);
+  if (activeCampania !== 'all') params.set('campania', activeCampania);
 
   const search = document.getElementById('searchInput').value.trim();
   if (search) params.set('buscar', search);
@@ -264,6 +268,7 @@ function renderAll() {
   renderKpis();
   renderTrendChart();
   renderChips();
+  renderCampaniaChips();
   renderCards();
 }
 
@@ -582,8 +587,56 @@ function renderChips() {
   container.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       activeResidencia = chip.dataset.residencia;
+      activeCampania = 'all';
       renderChips();
       renderKpis();
+      renderCampaniaChips();
+      renderCards();
+      syncUrlFromState();
+    });
+  });
+}
+
+// Chips de campaña, con las mismas reglas que renderChips() pero acotadas a
+// la residencia activa (drill-down: primero residencia, luego campaña dentro
+// de ella). "Sin campaña" agrupa anuncios de semanas anteriores a que
+// empezáramos a guardar el campo, o de campañas antiguas ya limpiadas del
+// Code.gs — nunca se excluyen en silencio del filtro "Todas".
+function renderCampaniaChips() {
+  const container = document.getElementById('campaniaChips');
+  const ads = getBaseAds().filter(a => activeResidencia === 'all' || a.residencia === activeResidencia);
+  const campanias = [...new Set(ads.map(a => a.campania).filter(Boolean))].sort();
+
+  if (!campanias.length) {
+    container.hidden = true;
+    container.innerHTML = '';
+    return;
+  }
+  container.hidden = false;
+
+  const sinCampania = ads.filter(a => !a.campania).length;
+  const chipsHtml = [`<button class="chip ${activeCampania === 'all' ? 'active' : ''}" data-campania="all">
+      <span class="dot"></span>Todas las campañas (${ads.length})
+    </button>`];
+
+  campanias.forEach(camp => {
+    const count = ads.filter(a => a.campania === camp).length;
+    chipsHtml.push(`<button class="chip ${activeCampania === camp ? 'active' : ''}" data-campania="${escapeHtml(camp)}">
+        <span class="dot"></span>${escapeHtml(camp)} (${count})
+      </button>`);
+  });
+
+  if (sinCampania > 0) {
+    chipsHtml.push(`<button class="chip ${activeCampania === '__none__' ? 'active' : ''}" data-campania="__none__">
+        <span class="dot"></span>Sin campaña (${sinCampania})
+      </button>`);
+  }
+
+  container.innerHTML = chipsHtml.join('');
+  container.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      activeCampania = chip.dataset.campania;
+      renderCampaniaChips();
       renderCards();
       syncUrlFromState();
     });
@@ -597,10 +650,11 @@ function getFilteredAds() {
   const leadsSemanaOnly = document.getElementById('leadsSemanaOnlyToggle').checked;
   let ads = getBaseAds().map(a => ({ ...a, isBaja: bajasOnly })).filter(a => {
     const matchesResidencia = activeResidencia === 'all' || a.residencia === activeResidencia;
+    const matchesCampania = activeCampania === 'all' || (activeCampania === '__none__' ? !a.campania : a.campania === activeCampania);
     const matchesSearch = !search || normalize(a.texto).includes(search);
     const matchesNew = !newOnly || a.isNew;
     const matchesLeadsSemana = !leadsSemanaOnly || (a.leadsSemana || 0) > 0;
-    return matchesResidencia && matchesSearch && matchesNew && matchesLeadsSemana;
+    return matchesResidencia && matchesCampania && matchesSearch && matchesNew && matchesLeadsSemana;
   });
 
   const grouped = document.getElementById('groupToggle').checked;
@@ -765,6 +819,7 @@ document.getElementById('exportPdfBtn').addEventListener('click', () => window.p
 document.getElementById('weekSelect').addEventListener('change', (e) => {
   selectedWeek = e.target.value;
   activeResidencia = 'all';
+  activeCampania = 'all';
   renderAll();
   syncUrlFromState();
 });
