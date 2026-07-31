@@ -284,20 +284,15 @@ function matchesResidenciaConjunto(a) {
 function renderKpis() {
   const weekAds = getWeekAds().filter(matchesResidenciaConjunto);
   const weeks = getAvailableWeeks();
+  const idx = weeks.indexOf(selectedWeek);
+  const prevWeek = idx > -1 && idx < weeks.length - 1 ? weeks[idx + 1] : null;
+
   const total = weekAds.length;
-  const residencias = new Set(weekAds.map(a => normalize(a.residencia)));
   const masReciente = weekAds.reduce((max, a) => (a.fechaInicio && (!max || a.fechaInicio > max) ? a.fechaInicio : max), null);
-
-  const counts = {};
-  weekAds.forEach(a => { counts[a.residencia] = (counts[a.residencia] || 0) + 1; });
-  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-
   const antiguedad = getAntiguedadMediaDias(weekAds);
 
   document.getElementById('kpiTotal').textContent = total;
-  document.getElementById('kpiResidencias').textContent = residencias.size;
   document.getElementById('kpiReciente').textContent = formatDate(masReciente);
-  document.getElementById('kpiTop').textContent = top ? `${top[0]} (${top[1]})` : '—';
   document.getElementById('kpiAntiguedad').textContent = antiguedad !== null ? `${antiguedad} días` : '—';
 
   // Suma de leads de la semana en curso entre todos los anuncios que sí
@@ -305,17 +300,30 @@ function renderKpis() {
   const leadsSemanaTotal = weekAds.reduce((sum, a) => sum + (a.leadsSemana || 0), 0);
   document.getElementById('kpiLeadsSemana').textContent = leadsSemanaTotal.toLocaleString('es-ES');
 
-  const idx = weeks.indexOf(selectedWeek);
+  // Residencia con más leads (no "más anuncios": la que más convierte, no
+  // la que más publica — pueden ser residencias distintas).
+  const leadsPorResidencia = {};
+  weekAds.forEach(a => { leadsPorResidencia[a.residencia] = (leadsPorResidencia[a.residencia] || 0) + (a.leadsSemana || 0); });
+  const topLeads = Object.entries(leadsPorResidencia).sort((a, b) => b[1] - a[1])[0];
+  document.getElementById('kpiTopLeadsResidencia').textContent = topLeads ? `${topLeads[0]} (${topLeads[1]})` : '—';
+
   const kpiNuevos = document.getElementById('kpiNuevos');
   const kpiBajas = document.getElementById('kpiBajas');
-  if (idx > -1 && idx < weeks.length - 1) {
+  const kpiVariacionLeads = document.getElementById('kpiVariacionLeads');
+  if (prevWeek) {
     const nuevos = weekAds.filter(a => a.isNew).length;
     kpiNuevos.textContent = nuevos;
     const bajas = getBajasAds().filter(matchesResidenciaConjunto);
     kpiBajas.textContent = bajas.length;
+
+    const prevWeekAds = rawAds.filter(a => weekKey(a.fechaExtraccion) === prevWeek).filter(matchesResidenciaConjunto);
+    const leadsSemanaPrev = prevWeekAds.reduce((sum, a) => sum + (a.leadsSemana || 0), 0);
+    const variacion = leadsSemanaTotal - leadsSemanaPrev;
+    kpiVariacionLeads.textContent = (variacion > 0 ? '▲ +' : variacion < 0 ? '▼ ' : '– ') + variacion;
   } else {
     kpiNuevos.textContent = '—';
     kpiBajas.textContent = '—';
+    kpiVariacionLeads.textContent = '—';
   }
 }
 
