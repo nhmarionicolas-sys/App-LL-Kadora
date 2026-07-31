@@ -468,7 +468,7 @@ body.competencia-active .orb--coral { box-shadow: 0 0 18px -2px rgba(229, 106, 8
 .chip-groups {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 }
 
 .chips {
