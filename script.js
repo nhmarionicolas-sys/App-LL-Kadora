@@ -25,7 +25,7 @@ const PIN_ICON = `<svg class="badge-icon" width="10" height="10" viewBox="0 0 24
 let rawAds = [];
 let selectedWeek = null;
 let activeResidencia = 'all';
-let activeCampania = 'all';
+let activeConjunto = 'all';
 
 function normalize(str) {
   return (str || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
@@ -85,7 +85,7 @@ async function loadData() {
         // a que empezáramos a medirlo. Distinto de 0, que sí es un dato real.
         leadsTotal: (item.leads_total === null || item.leads_total === undefined) ? null : Number(item.leads_total),
         leadsSemana: (item.leads_semana === null || item.leads_semana === undefined) ? null : Number(item.leads_semana),
-        campania: item.campania || null,
+        conjunto: item.conjunto || null,
       }));
 
     const masReciente = rawAds.reduce((max, a) => (a.fechaExtraccion && (!max || a.fechaExtraccion > max) ? a.fechaExtraccion : max), null);
@@ -135,7 +135,7 @@ function applyStateFromUrl() {
   const params = new URLSearchParams(location.search);
   if (params.get('semana')) selectedWeek = params.get('semana');
   if (params.get('residencia')) activeResidencia = params.get('residencia');
-  if (params.get('campania')) activeCampania = params.get('campania');
+  if (params.get('conjunto')) activeConjunto = params.get('conjunto');
   if (params.get('buscar')) document.getElementById('searchInput').value = params.get('buscar');
   if (params.get('nuevos') === '1') document.getElementById('newOnlyToggle').checked = true;
   if (params.get('bajas') === '1') document.getElementById('bajasOnlyToggle').checked = true;
@@ -148,7 +148,7 @@ function syncUrlFromState() {
   const params = new URLSearchParams();
   if (selectedWeek) params.set('semana', selectedWeek);
   if (activeResidencia !== 'all') params.set('residencia', activeResidencia);
-  if (activeCampania !== 'all') params.set('campania', activeCampania);
+  if (activeConjunto !== 'all') params.set('conjunto', activeConjunto);
 
   const search = document.getElementById('searchInput').value.trim();
   if (search) params.set('buscar', search);
@@ -268,12 +268,21 @@ function renderAll() {
   renderKpis();
   renderTrendChart();
   renderChips();
-  renderCampaniaChips();
+  renderConjuntoSelect();
   renderCards();
 }
 
+// Compartido entre renderKpis(), las bajas del KPI y getFilteredAds() — así
+// residencia y conjunto de anuncios se aplican con el mismo criterio en
+// todos los sitios que filtran por ellos.
+function matchesResidenciaConjunto(a) {
+  const matchesResidencia = activeResidencia === 'all' || a.residencia === activeResidencia;
+  const matchesConjunto = activeConjunto === 'all' || (activeConjunto === '__none__' ? !a.conjunto : a.conjunto === activeConjunto);
+  return matchesResidencia && matchesConjunto;
+}
+
 function renderKpis() {
-  const weekAds = getWeekAds().filter(a => activeResidencia === 'all' || a.residencia === activeResidencia);
+  const weekAds = getWeekAds().filter(matchesResidenciaConjunto);
   const weeks = getAvailableWeeks();
   const total = weekAds.length;
   const residencias = new Set(weekAds.map(a => normalize(a.residencia)));
@@ -302,7 +311,7 @@ function renderKpis() {
   if (idx > -1 && idx < weeks.length - 1) {
     const nuevos = weekAds.filter(a => a.isNew).length;
     kpiNuevos.textContent = nuevos;
-    const bajas = getBajasAds().filter(a => activeResidencia === 'all' || a.residencia === activeResidencia);
+    const bajas = getBajasAds().filter(matchesResidenciaConjunto);
     kpiBajas.textContent = bajas.length;
   } else {
     kpiNuevos.textContent = '—';
@@ -587,60 +596,56 @@ function renderChips() {
   container.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       activeResidencia = chip.dataset.residencia;
-      activeCampania = 'all';
+      activeConjunto = 'all';
       renderChips();
       renderKpis();
-      renderCampaniaChips();
+      renderConjuntoSelect();
       renderCards();
       syncUrlFromState();
     });
   });
 }
 
-// Chips de campaña, con las mismas reglas que renderChips() pero acotadas a
-// la residencia activa (drill-down: primero residencia, luego campaña dentro
-// de ella). "Sin campaña" agrupa anuncios de semanas anteriores a que
-// empezáramos a guardar el campo, o de campañas antiguas ya limpiadas del
-// Code.gs — nunca se excluyen en silencio del filtro "Todas".
-function renderCampaniaChips() {
-  const container = document.getElementById('campaniaChips');
-  const ads = getBaseAds().filter(a => activeResidencia === 'all' || a.residencia === activeResidencia);
-  const campanias = [...new Set(ads.map(a => a.campania).filter(Boolean))].sort();
+// Desplegable de conjunto de anuncios (adset) — solo tiene sentido con una
+// residencia concreta seleccionada, nunca con "Todas" (mezclar conjuntos de
+// residencias distintas no dice nada útil), así que se queda oculto hasta
+// entonces. "Sin conjunto" agrupa anuncios de semanas anteriores a que
+// empezáramos a guardar el campo — nunca se excluyen en silencio.
+function renderConjuntoSelect() {
+  const select = document.getElementById('conjuntoSelect');
 
-  if (!campanias.length) {
-    container.hidden = true;
-    container.innerHTML = '';
+  if (activeResidencia === 'all') {
+    select.hidden = true;
+    select.innerHTML = '';
     return;
   }
-  container.hidden = false;
 
-  const sinCampania = ads.filter(a => !a.campania).length;
-  const chipsHtml = [`<button class="chip ${activeCampania === 'all' ? 'active' : ''}" data-campania="all">
-      <span class="dot"></span>Todas las campañas (${ads.length})
-    </button>`];
+  const ads = getBaseAds().filter(a => a.residencia === activeResidencia);
+  const conjuntos = [...new Set(ads.map(a => a.conjunto).filter(Boolean))].sort();
 
-  campanias.forEach(camp => {
-    const count = ads.filter(a => a.campania === camp).length;
-    chipsHtml.push(`<button class="chip ${activeCampania === camp ? 'active' : ''}" data-campania="${escapeHtml(camp)}">
-        <span class="dot"></span>${escapeHtml(camp)} (${count})
-      </button>`);
+  if (!conjuntos.length) {
+    select.hidden = true;
+    select.innerHTML = '';
+    return;
+  }
+  select.hidden = false;
+
+  const sinConjunto = ads.filter(a => !a.conjunto).length;
+  const options = [`<option value="all">Todos los conjuntos de anuncios (${ads.length})</option>`];
+  conjuntos.forEach(c => {
+    const count = ads.filter(a => a.conjunto === c).length;
+    options.push(`<option value="${escapeHtml(c)}">${escapeHtml(c)} (${count})</option>`);
   });
-
-  if (sinCampania > 0) {
-    chipsHtml.push(`<button class="chip ${activeCampania === '__none__' ? 'active' : ''}" data-campania="__none__">
-        <span class="dot"></span>Sin campaña (${sinCampania})
-      </button>`);
+  if (sinConjunto > 0) {
+    options.push(`<option value="__none__">Sin conjunto de anuncios (${sinConjunto})</option>`);
   }
 
-  container.innerHTML = chipsHtml.join('');
-  container.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      activeCampania = chip.dataset.campania;
-      renderCampaniaChips();
-      renderCards();
-      syncUrlFromState();
-    });
-  });
+  select.innerHTML = options.join('');
+  // Si el conjunto activo venía de la residencia anterior (o de una url
+  // compartida) y no existe en esta, el <select> cae solo en "all" — hay
+  // que igualar el estado para que el filtro no se quede desincronizado.
+  select.value = activeConjunto;
+  if (select.value !== activeConjunto) activeConjunto = 'all';
 }
 
 function getFilteredAds() {
@@ -649,12 +654,10 @@ function getFilteredAds() {
   const bajasOnly = document.getElementById('bajasOnlyToggle').checked;
   const leadsSemanaOnly = document.getElementById('leadsSemanaOnlyToggle').checked;
   let ads = getBaseAds().map(a => ({ ...a, isBaja: bajasOnly })).filter(a => {
-    const matchesResidencia = activeResidencia === 'all' || a.residencia === activeResidencia;
-    const matchesCampania = activeCampania === 'all' || (activeCampania === '__none__' ? !a.campania : a.campania === activeCampania);
     const matchesSearch = !search || normalize(a.texto).includes(search);
     const matchesNew = !newOnly || a.isNew;
     const matchesLeadsSemana = !leadsSemanaOnly || (a.leadsSemana || 0) > 0;
-    return matchesResidencia && matchesCampania && matchesSearch && matchesNew && matchesLeadsSemana;
+    return matchesResidenciaConjunto(a) && matchesSearch && matchesNew && matchesLeadsSemana;
   });
 
   const grouped = document.getElementById('groupToggle').checked;
@@ -819,8 +822,14 @@ document.getElementById('exportPdfBtn').addEventListener('click', () => window.p
 document.getElementById('weekSelect').addEventListener('change', (e) => {
   selectedWeek = e.target.value;
   activeResidencia = 'all';
-  activeCampania = 'all';
+  activeConjunto = 'all';
   renderAll();
+  syncUrlFromState();
+});
+document.getElementById('conjuntoSelect').addEventListener('change', (e) => {
+  activeConjunto = e.target.value;
+  renderKpis();
+  renderCards();
   syncUrlFromState();
 });
 document.getElementById('trendViewSelect').addEventListener('change', renderTrendChart);
