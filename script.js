@@ -268,7 +268,7 @@ function renderAll() {
 }
 
 function renderKpis() {
-  const weekAds = getWeekAds();
+  const weekAds = getWeekAds().filter(a => activeResidencia === 'all' || a.residencia === activeResidencia);
   const weeks = getAvailableWeeks();
   const total = weekAds.length;
   const residencias = new Set(weekAds.map(a => normalize(a.residencia)));
@@ -297,7 +297,8 @@ function renderKpis() {
   if (idx > -1 && idx < weeks.length - 1) {
     const nuevos = weekAds.filter(a => a.isNew).length;
     kpiNuevos.textContent = nuevos;
-    kpiBajas.textContent = getBajasIds().length;
+    const bajas = getBajasAds().filter(a => activeResidencia === 'all' || a.residencia === activeResidencia);
+    kpiBajas.textContent = bajas.length;
   } else {
     kpiNuevos.textContent = '—';
     kpiBajas.textContent = '—';
@@ -582,6 +583,7 @@ function renderChips() {
     chip.addEventListener('click', () => {
       activeResidencia = chip.dataset.residencia;
       renderChips();
+      renderKpis();
       renderCards();
       syncUrlFromState();
     });
