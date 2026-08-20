@@ -50,6 +50,20 @@ const submitBtn = document.getElementById('authSubmitBtn');
 const badge = document.getElementById('accessBadge');
 const badgeLabel = document.getElementById('accessLabel');
 const logoutBtn = document.getElementById('logoutBtn');
+const toggleVisibilityBtn = document.getElementById('authToggleVisibility');
+const eyeIcon = document.getElementById('authEyeIcon');
+
+const EYE_OPEN = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path><circle cx="12" cy="12" r="3"></circle>';
+const EYE_CLOSED = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.6 20.6 0 0 1 5.06-6.06M9.9 4.24A9.7 9.7 0 0 1 12 4c7 0 11 8 11 8a20.5 20.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+
+toggleVisibilityBtn.addEventListener('click', () => {
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  eyeIcon.innerHTML = isPassword ? EYE_CLOSED : EYE_OPEN;
+  toggleVisibilityBtn.setAttribute('aria-pressed', String(isPassword));
+  toggleVisibilityBtn.setAttribute('aria-label', isPassword ? 'Ocultar clave' : 'Mostrar clave');
+  input.focus();
+});
 
 function showAccessBadge() {
   if (!window.KadoraAuth.session) return;

@@ -313,13 +313,6 @@ function renderKpis() {
   const leadsSemanaTotal = weekAds.reduce((sum, a) => sum + (a.leadsSemana || 0), 0);
   document.getElementById('kpiLeadsSemana').textContent = leadsSemanaTotal.toLocaleString('es-ES');
 
-  // Residencia con más leads (no "más anuncios": la que más convierte, no
-  // la que más publica — pueden ser residencias distintas).
-  const leadsPorResidencia = {};
-  weekAds.forEach(a => { leadsPorResidencia[a.residencia] = (leadsPorResidencia[a.residencia] || 0) + (a.leadsSemana || 0); });
-  const topLeads = Object.entries(leadsPorResidencia).sort((a, b) => b[1] - a[1])[0];
-  document.getElementById('kpiTopLeadsResidencia').textContent = topLeads ? `${topLeads[0]} (${topLeads[1]})` : '—';
-
   const kpiNuevos = document.getElementById('kpiNuevos');
   const kpiBajas = document.getElementById('kpiBajas');
   const kpiVariacionLeads = document.getElementById('kpiVariacionLeads');

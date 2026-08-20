@@ -287,24 +287,51 @@ body:not(.auth-locked) .auth-overlay { display: none; }
   margin: 0 0 24px;
 }
 
+.auth-input-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
 .auth-input {
   width: 100%;
   border: none;
   background: linear-gradient(160deg, var(--surface-a), var(--surface-b));
   border-radius: 12px;
-  padding: 13px 16px;
+  padding: 13px 44px 13px 16px;
   font-size: 14px;
   font-family: inherit;
   color: var(--text);
   text-align: center;
   letter-spacing: .5px;
   box-shadow: inset -3px -3px 7px var(--shadow-hi), inset 4px 4px 9px var(--shadow-lo);
-  margin-bottom: 14px;
 }
 
 .auth-input:focus {
   outline: none;
   box-shadow: inset -3px -3px 7px var(--shadow-hi), inset 4px 4px 9px var(--shadow-lo), 0 0 0 2px var(--blue);
+}
+
+.auth-toggle-visibility {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.auth-toggle-visibility:hover { color: var(--text); }
+
+.auth-toggle-visibility:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--blue);
 }
 
 .auth-submit {
