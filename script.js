@@ -8,6 +8,10 @@ const CONFIG = {
   AUTO_REFRESH_MS: 5 * 60 * 1000,
 };
 
+// auth.js (cargado antes que este archivo) necesita esta URL para validar la
+// clave de acceso antes de que arranque la app — ver contrato en auth.js.
+window.KADORA_DATA_URL = CONFIG.DATA_URL;
+
 const RESIDENCIA_COLORS = {
   granada: '#279989',
   barcelona: '#E56A54',
@@ -65,9 +69,18 @@ async function loadData() {
   setSyncStatus('loading', 'Sincronizando con el Sheet…');
   if (!rawAds.length) renderSkeletonCards();
   try {
-    const res = await fetch(CONFIG.DATA_URL, { cache: 'no-store' });
+    const session = window.KadoraAuth && window.KadoraAuth.session;
+    const url = CONFIG.DATA_URL + '?key=' + encodeURIComponent(session ? session.key : '');
+    const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
+    if (json.error) {
+      // La clave ha dejado de ser válida a mitad de sesión (revocada,
+      // cambiada) — obligamos a volver a entrar en vez de mostrar datos
+      // a medias o un error confuso.
+      window.KadoraAuth.logout();
+      return;
+    }
     const items = Array.isArray(json.data) ? json.data : [];
 
     rawAds = items
@@ -588,7 +601,13 @@ function renderChips() {
   const weekAds = getBaseAds();
   const residencias = [...new Set(weekAds.map(a => a.residencia))].sort();
 
-  const chipsHtml = [`<button class="chip ${activeResidencia === 'all' ? 'active' : ''}" data-residencia="all">
+  // Con un acceso de ciudad, el backend ya solo devuelve esa residencia —
+  // el chip "Todas" sobra (mostraría lo mismo que la única residencia
+  // presente) y confundiría dando a entender que hay más para elegir.
+  const session = window.KadoraAuth && window.KadoraAuth.session;
+  const scoped = session && session.scope && session.scope !== 'all';
+
+  const chipsHtml = scoped ? [] : [`<button class="chip ${activeResidencia === 'all' ? 'active' : ''}" data-residencia="all">
       <span class="dot"></span>Todas (${weekAds.length})
     </button>`];
 
@@ -848,8 +867,21 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(renderTrendChart, 150);
 });
 
-applyStateFromUrl();
-loadData();
-setInterval(loadData, CONFIG.AUTO_REFRESH_MS);
+function boot() {
+  applyStateFromUrl();
+  // Un acceso de ciudad fija la residencia a la suya, ignorando cualquier
+  // ?residencia= que llegara en la URL — el backend ya solo devuelve esa
+  // ciudad, así que dejar otro valor activo solo daría una vista vacía.
+  const session = window.KadoraAuth && window.KadoraAuth.session;
+  if (session && session.scope && session.scope !== 'all') activeResidencia = session.scope;
+  loadData();
+  setInterval(loadData, CONFIG.AUTO_REFRESH_MS);
+}
+
+if (window.KadoraAuth && window.KadoraAuth.session) {
+  boot();
+} else {
+  window.addEventListener('kadora-auth-ready', boot, { once: true });
+}
 
 })();

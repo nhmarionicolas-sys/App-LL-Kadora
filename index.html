@@ -9,7 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="auth-locked">
+
+<div class="auth-overlay" id="authOverlay">
+  <form class="auth-card" id="authForm">
+    <img src="assets/kadora-logo.webp" alt="Kadora" class="auth-logo">
+    <h1>Acceso al Monitor</h1>
+    <p class="auth-sub">Introduce tu clave de acceso para entrar.</p>
+    <input type="password" id="authKeyInput" class="auth-input" placeholder="Clave de acceso" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+    <button type="submit" class="auth-submit" id="authSubmitBtn">Entrar</button>
+    <p class="auth-error" id="authError" hidden></p>
+  </form>
+</div>
+
+<div class="app-content">
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -24,6 +37,10 @@
         <button class="view-tab active" data-view="kadora" type="button">Anuncios Kadora</button>
         <button class="view-tab" data-view="competencia" type="button">Competencia</button>
       </nav>
+      <div class="access-badge" id="accessBadge" hidden>
+        <span id="accessLabel"></span>
+        <button type="button" class="logout-link" id="logoutBtn">Salir</button>
+      </div>
       <div class="sync-status" id="syncStatus">
         <span class="sync-dot" id="syncDot"></span>
         <span id="syncLabel">Conectando con el Sheet…</span>
@@ -195,6 +212,9 @@
   <p id="footerComp" hidden>Datos de la Biblioteca de Anuncios de Meta (pública) · Sin imágenes: no tenemos acceso al Ads Manager de la competencia · <button id="refreshBtnComp" class="link-btn">Actualizar ahora</button></p>
 </footer>
 
+</div>
+
+<script src="auth.js"></script>
 <script src="script.js"></script>
 <script src="script-competencia.js"></script>
 <script>

@@ -12,6 +12,11 @@ const CONFIG = {
   AUTO_REFRESH_MS: 5 * 60 * 1000,
 };
 
+// auth.js necesita esta URL solo para saber que existe (la validación de la
+// clave se hace contra la de Kadora); se expone igualmente por si algún día
+// hace falta comprobarla por separado.
+window.KADORA_COMP_DATA_URL = CONFIG.DATA_URL;
+
 const CIUDADES = ['Granada', 'Sevilla', 'Barcelona', 'Zaragoza', 'Portugal'];
 
 const COMPETIDOR_COLORS = {
@@ -130,9 +135,15 @@ async function loadData() {
   setSyncStatus('loading', 'Sincronizando con el Sheet…');
   if (!rawAds.length) renderSkeletonCards();
   try {
-    const res = await fetch(CONFIG.DATA_URL, { cache: 'no-store' });
+    const session = window.KadoraAuth && window.KadoraAuth.session;
+    const url = CONFIG.DATA_URL + '?key=' + encodeURIComponent(session ? session.key : '');
+    const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
+    if (json.error) {
+      window.KadoraAuth.logout();
+      return;
+    }
     const items = Array.isArray(json.data) ? json.data : [];
     const semanas = Array.isArray(json.semanas) ? json.semanas : [];
 
@@ -200,7 +211,14 @@ function renderCityTabs() {
   const container = document.getElementById('cityTabs');
   const disponibles = new Set(rawAds.map(a => a.ciudad));
 
-  container.innerHTML = CIUDADES.map(ciudad => {
+  // Con un acceso de ciudad solo se pinta su propia pestaña — mostrar el
+  // resto (aunque salgan deshabilitadas como "próximamente") revelaría
+  // nombres de ciudades que esa clave no debería ni intuir que existen.
+  const session = window.KadoraAuth && window.KadoraAuth.session;
+  const scoped = session && session.scope && session.scope !== 'all';
+  const ciudadesAMostrar = scoped ? [session.scope] : CIUDADES;
+
+  container.innerHTML = ciudadesAMostrar.map(ciudad => {
     const tieneDatos = disponibles.has(ciudad);
     const activa = ciudad === activeCiudad;
     return `<button class="city-tab ${activa ? 'active' : ''} ${tieneDatos ? '' : 'disabled'}" data-ciudad="${ciudad}" ${tieneDatos ? '' : 'disabled'}>
@@ -373,8 +391,18 @@ document.getElementById('weekSelectComp').addEventListener('change', (e) => {
   renderAll();
 });
 
-loadData();
-loadPricing();
-setInterval(loadData, CONFIG.AUTO_REFRESH_MS);
+function boot() {
+  const session = window.KadoraAuth && window.KadoraAuth.session;
+  if (session && session.scope && session.scope !== 'all') activeCiudad = session.scope;
+  loadData();
+  loadPricing();
+  setInterval(loadData, CONFIG.AUTO_REFRESH_MS);
+}
+
+if (window.KadoraAuth && window.KadoraAuth.session) {
+  boot();
+} else {
+  window.addEventListener('kadora-auth-ready', boot, { once: true });
+}
 
 })();
