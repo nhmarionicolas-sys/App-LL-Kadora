@@ -131,14 +131,41 @@ function renderPricing() {
 // ---------------------------------------------------------------------------
 // Carga y transformación de datos
 // ---------------------------------------------------------------------------
+// El Web App de Apps Script tiene arranque en frío (~10 s la primera visita
+// tras un rato de inactividad), un salto de redirección y errores transitorios
+// de Google (429/500, conexión cortada). Cada intento lleva timeout para que
+// una petición colgada falle rápido en vez de quedarse cargando, y reintentamos
+// con espera creciente antes de rendirnos.
+const FETCH_TIMEOUT_MS = 15000;
+const FETCH_MAX_INTENTOS = 3;
+let cargandoDatos = false;
+
+async function fetchConReintentos(url, intento = 1) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res;
+  } catch (err) {
+    if (intento >= FETCH_MAX_INTENTOS) throw err;
+    setSyncStatus('loading', `Reintentando la conexión… (${intento + 1}/${FETCH_MAX_INTENTOS})`);
+    await new Promise(r => setTimeout(r, 2000 * intento)); // 2 s, luego 4 s
+    return fetchConReintentos(url, intento + 1);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function loadData() {
+  if (cargandoDatos) return; // evita solapar el auto-refresh con un reintento o un clic manual
+  cargandoDatos = true;
   setSyncStatus('loading', 'Sincronizando con el Sheet…');
   if (!rawAds.length) renderSkeletonCards();
   try {
     const session = window.KadoraAuth && window.KadoraAuth.session;
     const url = CONFIG.DATA_URL + '?key=' + encodeURIComponent(session ? session.key : '');
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const res = await fetchConReintentos(url);
     const json = await res.json();
     if (json.error) {
       window.KadoraAuth.logout();
@@ -177,6 +204,9 @@ async function loadData() {
   } catch (err) {
     console.error(err);
     setSyncStatus('err', 'No se pudo conectar con el origen de datos. Reintentando…');
+    setTimeout(loadData, 10000); // los 3 intentos han fallado: reintento de fondo, la web se recupera sola
+  } finally {
+    cargandoDatos = false;
   }
 }
 
