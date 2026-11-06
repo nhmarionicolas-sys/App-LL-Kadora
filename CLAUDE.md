@@ -32,5 +32,5 @@ Dashboard web (sin framework) que muestra los anuncios activos en Meta de Kadora
 
 ## Trabajar en el proyecto
 
-- Sin build ni dependencias. Local: `cd "~/Desktop/App-LL-Kadora" && python3 -m http.server 8931` → `http://localhost:8931`.
+- Sin build ni dependencias. Local: `cd "~/Desktop/Liten-Lemon/App-LL-Kadora" && python3 -m http.server 8931` → `http://localhost:8931`.
 - **Publicar en lotes (desde 2026-07-13):** cada `push` a `main` gasta crédito mensual de Netlify (la cuenta original se agotó por publicar demasiado seguido). Hacer `git commit` en local tras cada cambio probado, pero **`git push` solo cuando Mario confirme el lote**, una vez.
